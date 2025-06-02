@@ -47,6 +47,7 @@
             height: 100%;
             object-fit: contain;
             background: white;
+            padding: 10px;
         }
 
         h1 {
@@ -406,7 +407,7 @@
     <div class="container">
         <header>
             <div class="logo">
-                <img src="assets/images/kubernetes-logo.png" alt="Kubernetes" />
+                <img src="assets/images/k8.png" alt="Kubernetes" />
             </div>
             <h1>Kubernetes Zero to Hero</h1>
             <p class="subtitle">Complete Learning Guide & Documentation</p>
@@ -442,23 +443,70 @@
             </div>
         </header>
 
-        <div class="search-container">
-            <input type="text" class="search-box" placeholder="Search for guides, topics, or concepts..." id="searchInput">
-            <i class="fas fa-search search-icon"></i>
-        </div>
-
         <div class="stats">
             <div class="stat-card">
                 <div class="stat-number">17</div>
                 <div class="stat-label">Step-by-Step Guides</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">Share and Bookmark</div>
-                <div class="stat-label">Star the Repo</div>
+                <div class="stat-number">Share and</div>
+                <div class="stat-label">Bookmark</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number">100%</div>
                 <div class="stat-label">Free & Open Source</div>
+            </div>
+        </div>
+
+        <!-- Table of Contents Section -->
+        <div class="guides-container">
+            <h2 class="section-title">📋 What's Included in This Guide</h2>
+            
+            <div class="toc-grid">
+                <div class="toc-section">
+                    <h3>🚀 Fundamentals (Steps 1-4)</h3>
+                    <ul>
+                        <li>Kubernetes Introduction & Basics</li>
+                        <li>Cluster Architecture & Components</li>
+                        <li>Production Best Practices</li>
+                        <li>Pods & Container Management</li>
+                    </ul>
+                </div>
+                
+                <div class="toc-section">
+                    <h3>🔧 Core Features (Steps 5-10)</h3>
+                    <ul>
+                        <li>Deployments & ReplicaSets</li>
+                        <li>Services & Networking</li>
+                        <li>Interview Preparation Guide</li>
+                        <li>Practical Services Implementation</li>
+                        <li>Ingress Controllers & Load Balancing</li>
+                        <li>Complete Services & Ingress Guide</li>
+                    </ul>
+                </div>
+                
+                <div class="toc-section">
+                    <h3>🔒 Advanced Topics (Steps 11-17)</h3>
+                    <ul>
+                        <li>RBAC & Security Implementation</li>
+                        <li>Custom Resources & Operators</li>
+                        <li>ConfigMaps & Secrets Management</li>
+                        <li>Monitoring & Observability</li>
+                        <li>Real-world Challenges & Troubleshooting</li>
+                        <li>Security Best Practices</li>
+                        <li>Enterprise Implementation Strategies</li>
+                    </ul>
+                </div>
+                
+                <div class="toc-section">
+                    <h3>📚 Bonus Materials</h3>
+                    <ul>
+                        <li>Complete Kubernetes Reference Guide</li>
+                        <li>Structured Learning Modules</li>
+                        <li>Hands-on Practical Exercises</li>
+                        <li>Real-world Use Cases</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -1058,7 +1106,7 @@
                 </div>
             </div>
 
-            <div class="no-results" id="noResults">
+            <div class="no-results" id="noResults" style="display: none;">
                 <i class="fas fa-search"></i>
                 <h3>No guides found</h3>
                 <p>Try adjusting your search terms or browse all available guides above.</p>
@@ -1077,40 +1125,9 @@
     </div>
 
     <script>
-        // Search functionality
-        const searchInput = document.getElementById('searchInput');
+        // Search functionality - REMOVED
         const guidesGrid = document.getElementById('guidesGrid');
-        const noResults = document.getElementById('noResults');
         const guideCards = document.querySelectorAll('.guide-card');
-
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-            let visibleCards = 0;
-
-            guideCards.forEach(card => {
-                const keywords = card.dataset.keywords.toLowerCase();
-                const title = card.querySelector('.guide-title').textContent.toLowerCase();
-                const description = card.querySelector('.guide-description').textContent.toLowerCase();
-                
-                const isMatch = keywords.includes(searchTerm) || 
-                               title.includes(searchTerm) || 
-                               description.includes(searchTerm);
-
-                if (isMatch || searchTerm === '') {
-                    card.style.display = 'block';
-                    visibleCards++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            // Show/hide no results message
-            if (visibleCards === 0 && searchTerm !== '') {
-                noResults.style.display = 'block';
-            } else {
-                noResults.style.display = 'none';
-            }
-        });
 
         // Add smooth scrolling and animations
         document.addEventListener('DOMContentLoaded', function() {
