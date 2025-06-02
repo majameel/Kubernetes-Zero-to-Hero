@@ -1,17 +1,34 @@
-# Kubernetes-k8s
-All About Kubernetes 
+# Kubernetes Zero to Hero Learning Hub
 
-# Pre-requisites to learn Docker 
-While "Docker" is often used because people are more familiar with the term, the core requirement is understanding the concept of containers. This means understanding:
+A comprehensive collection of Kubernetes guides and tutorials created by Mohd Abdul Jameel, inspired by Abhishek Veeramalla's YouTube channel.
 
-- What containers bring into the picture
-- How they are different from virtual machines
-- Networking isolation
-- Namespace isolation
-- Why containers are lightweight
-- How to secure containers (using distroless images, multi-stage Docker builds)
+## 🚀 Live Website
+Visit: `https://yourusername.github.io/your-repo-name`
 
-You should be strong with the basics of containers, not just simple Docker commands. It is assumed you have watched the previous videos or already understand these concepts before proceeding with Kubernetes.
+## 📚 What's Included
+- Complete Kubernetes fundamentals
+- Practical guides with examples
+- Architecture deep-dives
+- Security best practices
+- Production deployment guides
+- Monitoring and observability
+- And much more!
 
-# Table of Contents
-1. Intro to K8s[https://raw.githubusercontent.com/majameel/Kubernetes-k8s/refs/heads/main/Intro%20to%20Kubernetes.md](url)
+## 🎯 Learning Path
+1. Start with Kubernetes Introduction
+2. Master Pods and Services
+3. Learn about Configuration Management
+4. Dive into Security and RBAC
+5. Explore Production Best Practices
+
+## 🤝 Contributing
+Feel free to contribute by:
+- Reporting issues
+- Suggesting improvements
+- Adding new guides
+
+## 📺 Credits
+Special thanks to [Abhishek Veeramalla's YouTube Channel](https://youtube.com/@AbhishekVeeramalla) for the amazing content that inspired these guides.
+
+## 📄 License
+This project is open source and available under the MIT License.
