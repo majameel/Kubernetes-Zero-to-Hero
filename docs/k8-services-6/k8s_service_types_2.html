@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Service Types</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            font-size: 2.8em;
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .service-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .service-card {
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .clusterip {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-left: 6px solid #e17055;
+        }
+        .nodeport {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-left: 6px solid #00b894;
+        }
+        .loadbalancer {
+            background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+            border-left: 6px solid #6c5ce7;
+        }
+        .service-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .service-icon {
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+        .diagram-container {
+            background: rgba(255,255,255,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .architecture {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .component {
+            text-align: center;
+            margin: 10px;
+        }
+        .cluster-boundary {
+            border: 3px dashed #74b9ff;
+            border-radius: 15px;
+            padding: 20px;
+            background: rgba(116, 185, 255, 0.1);
+            position: relative;
+        }
+        .cluster-label {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #74b9ff;
+            border: 2px solid #74b9ff;
+        }
+        .pod-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .pod {
+            width: 50px;
+            height: 50px;
+            background: #00b894;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .service {
+            width: 80px;
+            height: 60px;
+            background: #74b9ff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .node {
+            width: 100px;
+            height: 80px;
+            background: #e17055;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .load-balancer {
+            width: 120px;
+            height: 80px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .user-internal {
+            width: 60px;
+            height: 60px;
+            background: #fdcb6e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .user-external {
+            width: 60px;
+            height: 60px;
+            background: #fd79a8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .arrow {
+            font-size: 1.5em;
+            color: #2d3436;
+            margin: 0 10px;
+        }
+        .use-case {
+            background: rgba(255,255,255,0.6);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .use-case h4 {
+            margin: 0 0 10px 0;
+            color: #2d3436;
+        }
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .pros, .cons {
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .pros {
+            background: rgba(0, 184, 148, 0.1);
+            border-left: 4px solid #00b894;
+        }
+        .cons {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid #e74c3c;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .comparison-table th {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .feature-check {
+            color: #00b894;
+            font-weight: bold;
+        }
+        .feature-cross {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Kubernetes Service Types Guide</h1>
+        
+        <div class="service-types">
+            <!-- ClusterIP Service -->
+            <div class="service-card clusterip">
+                <div class="service-title">
+                    <span class="service-icon">🏠</span>
+                    ClusterIP (Default)
+                </div>
+                
+                <div class="diagram-container">
+                    <div class="architecture">
+                        <div class="cluster-boundary">
+                            <div class="cluster-label">Kubernetes Cluster</div>
+                            <div style="display: flex; align-items: center; gap: 15px; margin-top: 20px;">
+                                <div class="user-internal">👤</div>
+                                <div class="arrow">→</div>
+                                <div class="service">Service</div>
+                                <div class="arrow">→</div>
+                                <div class="pod-group">
+                                    <div class="pod">P1</div>
+                                    <div class="pod">P2</div>
+                                    <div class="pod">P3</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="use-case">
+                    <h4>🎯 Best For:</h4>
+                    <ul>
+                        <li>Internal microservice communication</li>
+                        <li>Database connections within cluster</li>
+                        <li>Backend services not exposed externally</li>
+                    </ul>
+                </div>
+                
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ Pros</h4>
+                        <ul>
+                            <li>Secure (internal only)</li>
+                            <li>Fast communication</li>
+                            <li>Default service type</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ Cons</h4>
+                        <ul>
+                            <li>No external access</li>
+                            <li>Requires cluster access</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- NodePort Service -->
+            <div class="service-card nodeport">
+                <div class="service-title">
+                    <span class="service-icon">🚪</span>
+                    NodePort
+                </div>
+                
+                <div class="diagram-container">
+                    <div class="architecture">
+                        <div class="user-external">👤</div>
+                        <div class="arrow">→</div>
+                        <div class="node">Worker<br>Node<br>:30000</div>
+                        <div class="arrow">→</div>
+                        <div class="service">Service</div>
+                        <div class="arrow">→</div>
+                        <div class="pod-group">
+                            <div class="pod">P1</div>
+                            <div class="pod">P2</div>
+                            <div class="pod">P3</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="use-case">
+                    <h4>🎯 Best For:</h4>
+                    <ul>
+                        <li>Development/testing environments</li>
+                        <li>Internal company applications</li>
+                        <li>When LoadBalancer isn't available</li>
+                    </ul>
+                </div>
+                
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ Pros</h4>
+                        <ul>
+                            <li>External access via node IP</li>
+                            <li>Works on any cluster</li>
+                            <li>Simple configuration</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ Cons</h4>
+                        <ul>
+                            <li>Uses high port numbers</li>
+                            <li>No load balancing across nodes</li>
+                            <li>Node IP changes break access</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- LoadBalancer Service -->
+            <div class="service-card loadbalancer">
+                <div class="service-title">
+                    <span class="service-icon">🌍</span>
+                    LoadBalancer
+                </div>
+                
+                <div class="diagram-container">
+                    <div class="architecture">
+                        <div class="user-external">🌐</div>
+                        <div class="arrow">→</div>
+                        <div class="load-balancer">Cloud<br>Load<br>Balancer</div>
+                        <div class="arrow">→</div>
+                        <div class="service">Service</div>
+                        <div class="arrow">→</div>
+                        <div class="pod-group">
+                            <div class="pod">P1</div>
+                            <div class="pod">P2</div>
+                            <div class="pod">P3</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="use-case">
+                    <h4>🎯 Best For:</h4>
+                    <ul>
+                        <li>Production web applications</li>
+                        <li>Public APIs and websites</li>
+                        <li>Customer-facing services</li>
+                    </ul>
+                </div>
+                
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ Pros</h4>
+                        <ul>
+                            <li>Public internet access</li>
+                            <li>Stable public IP</li>
+                            <li>Cloud provider managed</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>❌ Cons</h4>
+                        <ul>
+                            <li>Requires cloud provider</li>
+                            <li>Additional costs</li>
+                            <li>Won't work on local clusters</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h2 style="text-align: center; color: #2c3e50; margin: 40px 0;">Service Type Comparison</h2>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>ClusterIP</th>
+                    <th>NodePort</th>
+                    <th>LoadBalancer</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>External Access</strong></td>
+                    <td><span class="feature-cross">❌ No</span></td>
+                    <td><span class="feature-check">✅ Via Node IP</span></td>
+                    <td><span class="feature-check">✅ Via Public IP</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Load Balancing</strong></td>
+                    <td><span class="feature-check">✅ Internal</span></td>
+                    <td><span class="feature-check">✅ Internal</span></td>
+                    <td><span class="feature-check">✅ External + Internal</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Port Range</strong></td>
+                    <td>Any</td>
+                    <td>30000-32767</td>
+                    <td>Standard (80, 443)</td>
+                </tr>
+                <tr>
+                    <td><strong>Cloud Provider Required</strong></td>
+                    <td><span class="feature-cross">❌ No</span></td>
+                    <td><span class="feature-cross">❌ No</span></td>
+                    <td><span class="feature-check">✅ Yes</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Cost</strong></td>
+                    <td>Free</td>
+                    <td>Free</td>
+                    <td>Cloud LB charges apply</td>
+                </tr>
+                <tr>
+                    <td><strong>Use Case</strong></td>
+                    <td>Internal services</td>
+                    <td>Dev/Test environments</td>
+                    <td>Production web apps</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 25px; border-radius: 15px; margin-top: 30px;">
+            <h3 style="color: #2c3e50; margin-top: 0;">💡 Quick Decision Guide</h3>
+            <ul style="font-size: 1.1em; line-height: 1.6;">
+                <li><strong>Need internal communication only?</strong> → Use <span style="background: #fff; padding: 2px 8px; border-radius: 4px;">ClusterIP</span></li>
+                <li><strong>Need external access for testing?</strong> → Use <span style="background: #fff; padding: 2px 8px; border-radius: 4px;">NodePort</span></li>
+                <li><strong>Need production public access?</strong> → Use <span style="background: #fff; padding: 2px 8px; border-radius: 4px;">LoadBalancer</span></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
