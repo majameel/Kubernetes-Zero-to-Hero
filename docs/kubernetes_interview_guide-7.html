@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Kubernetes Interview Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            margin: 20px 0;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .section h3 {
+            color: #34495e;
+            margin: 20px 0 10px 0;
+            font-size: 1.4em;
+        }
+
+        .architecture-diagram {
+            display: grid;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .plane {
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 20px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+        }
+
+        .control-plane {
+            border-color: #e74c3c;
+            background: linear-gradient(145deg, #ffeaa7, #fab1a0);
+        }
+
+        .data-plane {
+            border-color: #27ae60;
+            background: linear-gradient(145deg, #a7f3d0, #6ee7b7);
+        }
+
+        .plane h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .component {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .component h4 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .component p {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .service-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .service-type {
+            background: linear-gradient(145deg, #ffffff, #f1f3f4);
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .service-type:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .cluster-ip { border-color: #f39c12; }
+        .node-port { border-color: #9b59b6; }
+        .load-balancer { border-color: #e74c3c; }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid #3498db;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .flow-step {
+            background: #3498db;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            min-width: 120px;
+            text-align: center;
+            position: relative;
+        }
+
+        .flow-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #2c3e50;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            margin: 15px 0;
+        }
+
+        .tips {
+            background: linear-gradient(120deg, #d4fc79 0%, #96e6a1 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #27ae60;
+        }
+
+        .tips h4 {
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .namespace-diagram {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .namespace {
+            border: 2px dashed #3498db;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .pod {
+            background: #e8f6f3;
+            border: 2px solid #27ae60;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .activities-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .activity {
+            background: linear-gradient(145deg, #fff, #f8f9fa);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .activity h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .flow-step:not(:last-child)::after {
+                display: none;
+            }
+            
+            .flow-diagram {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚢 Complete Kubernetes Interview Guide</h1>
+            <p>Master Kubernetes Concepts with Visual Learning</p>
+        </div>
+
+        <div class="section">
+            <h2>🔄 Question 1: Docker vs Kubernetes</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Docker</th>
+                        <th>Kubernetes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Type</strong></td>
+                        <td>Container Platform</td>
+                        <td>Container Orchestration Platform</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scale</strong></td>
+                        <td>Single Node</td>
+                        <td>Multi-Node Cluster</td>
+                    </tr>
+                    <tr>
+                        <td><strong>High Availability</strong></td>
+                        <td>No built-in HA</td>
+                        <td>Auto-healing & Auto-scaling</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Load Balancing</strong></td>
+                        <td>Manual setup required</td>
+                        <td>Built-in load balancing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Enterprise Features</strong></td>
+                        <td>Limited</td>
+                        <td>CRDs, Advanced networking, RBAC</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight">
+                <strong>Key Point:</strong> Containers are ephemeral! Kubernetes solves this by providing auto-healing and moving pods between nodes when failures occur.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🏗️ Question 2: Kubernetes Architecture</h2>
+            
+            <div class="architecture-diagram">
+                <div class="plane control-plane">
+                    <h3>🎛️ Control Plane (Master Node)</h3>
+                    <div class="components">
+                        <div class="component">
+                            <h4>API Server</h4>
+                            <p>Handles APIs and user interactions</p>
+                        </div>
+                        <div class="component">
+                            <h4>Scheduler</h4>
+                            <p>Schedules resources on cluster</p>
+                        </div>
+                        <div class="component">
+                            <h4>etcd</h4>
+                            <p>Object store for all K8s resources</p>
+                        </div>
+                        <div class="component">
+                            <h4>Controller Manager</h4>
+                            <p>Manages default controllers</p>
+                        </div>
+                        <div class="component">
+                            <h4>Cloud Control Manager</h4>
+                            <p>Cloud provider specific logic</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="plane data-plane">
+                    <h3>⚙️ Data Plane (Worker Nodes)</h3>
+                    <div class="components">
+                        <div class="component">
+                            <h4>Kubelet</h4>
+                            <p>Manages Pod lifecycle on nodes</p>
+                        </div>
+                        <div class="component">
+                            <h4>Kube Proxy</h4>
+                            <p>Handles networking and IP tables</p>
+                        </div>
+                        <div class="component">
+                            <h4>Container Runtime</h4>
+                            <p>Docker, containerd, or CRI-O</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚖️ Question 3: Docker Swarm vs Kubernetes</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Docker Swarm</th>
+                        <th>Kubernetes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Complexity</strong></td>
+                        <td>Easy to install and use</td>
+                        <td>Complex but powerful</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scale</strong></td>
+                        <td>Small scale applications</td>
+                        <td>Enterprise & large scale</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Networking</strong></td>
+                        <td>Limited options</td>
+                        <td>Advanced (Flannel, Calico, etc.)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Extensibility</strong></td>
+                        <td>Limited</td>
+                        <td>CRDs & active community</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Job Market</strong></td>
+                        <td>Limited demand</td>
+                        <td>High demand (mentioned in 10/10 DevOps jobs)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>📦 Question 4: Docker Container vs Kubernetes Pod</h2>
+            
+            <div class="highlight">
+                <strong>Pod = Runtime specification for containers</strong>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                <div style="background: #e8f6f3; padding: 20px; border-radius: 10px; border: 2px solid #27ae60;">
+                    <h3>🐳 Docker Container</h3>
+                    <ul>
+                        <li>Single container instance</li>
+                        <li>Isolated networking</li>
+                        <li>Individual storage</li>
+                        <li>Single process focus</li>
+                    </ul>
+                </div>
+                <div style="background: #fef9e7; padding: 20px; border-radius: 10px; border: 2px solid #f39c12;">
+                    <h3>🏠 Kubernetes Pod</h3>
+                    <ul>
+                        <li>Can contain multiple containers</li>
+                        <li>Shared networking between containers</li>
+                        <li>Shared storage volumes</li>
+                        <li>Lowest level deployment unit</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="code-block">
+# Example Pod YAML
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container-pod
+spec:
+  containers:
+  - name: web-server
+    image: nginx
+  - name: log-aggregator
+    image: fluentd
+    # Both containers share the same network and can communicate via localhost
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🏢 Question 5: Kubernetes Namespaces</h2>
+            
+            <div class="highlight">
+                <strong>Namespace = Logical isolation of resources for multi-tenant clusters</strong>
+            </div>
+
+            <div class="namespace-diagram">
+                <div class="namespace">
+                    <h4>📋 Namespace-A (Project A)</h4>
+                    <div class="pod">Web App Pod</div>
+                    <div class="pod">Database Pod</div>
+                    <div class="pod">Cache Pod</div>
+                    <p><small>Team A developers work here</small></p>
+                </div>
+                <div class="namespace">
+                    <h4>📊 Namespace-B (Project B)</h4>
+                    <div class="pod">Analytics Pod</div>
+                    <div class="pod">ML Model Pod</div>
+                    <div class="pod">API Pod</div>
+                    <p><small>Team B developers work here</small></p>
+                </div>
+            </div>
+
+            <div class="code-block">
+# Create namespace
+kubectl create namespace project-a
+
+# Deploy to specific namespace
+kubectl apply -f deployment.yaml -n project-a
+
+# List pods in namespace
+kubectl get pods -n project-a
+
+# Set default namespace context
+kubectl config set-context --current --namespace=project-a
+            </div>
+
+            <div class="tips">
+                <h4>💡 Benefits of Namespaces:</h4>
+                <ul>
+                    <li><strong>Resource Isolation:</strong> Logical separation of applications</li>
+                    <li><strong>RBAC:</strong> Role-based access control per namespace</li>
+                    <li><strong>Network Policies:</strong> Control traffic between namespaces</li>
+                    <li><strong>Resource Quotas:</strong> Limit resource usage per namespace</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🌐 Question 6: Role of Kube Proxy</h2>
+            
+            <div class="flow-diagram">
+                <div class="flow-step">User Request</div>
+                <div class="flow-step">Node IP:Port</div>
+                <div class="flow-step">Kube Proxy</div>
+                <div class="flow-step">IP Tables</div>
+                <div class="flow-step">Pod</div>
+            </div>
+
+            <div class="highlight">
+                <strong>Kube Proxy:</strong> Configures network rules on each node to route traffic to the correct pods
+            </div>
+
+            <div class="code-block">
+# Example: NodePort Service creates routing rules
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 8080
+    nodePort: 30007
+  selector:
+    app: my-app
+
+# Access via: http://&lt;node-ip&gt;:30007
+# Kube Proxy handles the routing to pod on port 8080
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔌 Question 7 & 8: Kubernetes Service Types</h2>
+            
+            <div class="service-types">
+                <div class="service-type cluster-ip">
+                    <h3>🏠 ClusterIP</h3>
+                    <p><strong>Internal Access Only</strong></p>
+                    <p>Service gets internal cluster IP</p>
+                    <p>Only accessible within cluster</p>
+                    <div class="code-block" style="margin-top: 15px; text-align: left;">
+type: ClusterIP
+# Default service type
+# Internal communication
+                    </div>
+                </div>
+
+                <div class="service-type node-port">
+                    <h3>🚪 NodePort</h3>
+                    <p><strong>Organization Access</strong></p>
+                    <p>Accessible via Node IP + Port</p>
+                    <p>Port range: 30000-32767</p>
+                    <div class="code-block" style="margin-top: 15px; text-align: left;">
+type: NodePort
+nodePort: 30007
+# Access: node-ip:30007
+                    </div>
+                </div>
+
+                <div class="service-type load-balancer">
+                    <h3>⚖️ LoadBalancer</h3>
+                    <p><strong>External World Access</strong></p>
+                    <p>Creates public IP/Load Balancer</p>
+                    <p>Anyone can access globally</p>
+                    <div class="code-block" style="margin-top: 15px; text-align: left;">
+type: LoadBalancer
+# Cloud provider creates
+# public load balancer
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <strong>Service Responsibilities:</strong>
+                <ol>
+                    <li>🔄 <strong>Load Balancing</strong> - Distribute traffic across pods</li>
+                    <li>🔍 <strong>Service Discovery</strong> - Find and connect services</li>
+                    <li>🌍 <strong>External Exposure</strong> - Make apps accessible</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🤖 Question 9: Role of Kubelet</h2>
+            
+            <div class="flow-diagram">
+                <div class="flow-step">Pod Scheduled</div>
+                <div class="flow-step">Kubelet Monitors</div>
+                <div class="flow-step">Pod Goes Down</div>
+                <div class="flow-step">Notify API Server</div>
+                <div class="flow-step">ReplicaSet Scales</div>
+            </div>
+
+            <div class="highlight">
+                <strong>Kubelet = Pod Lifecycle Manager on Worker Nodes</strong>
+            </div>
+
+            <div style="background: #e8f6f3; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3>🔧 Kubelet Functions:</h3>
+                <ul>
+                    <li><strong>Pod Monitoring:</strong> Continuously watches pod health</li>
+                    <li><strong>Status Reporting:</strong> Reports pod status to API server</li>
+                    <li><strong>Container Management:</strong> Starts/stops containers</li>
+                    <li><strong>Resource Management:</strong> Manages pod resources</li>
+                    <li><strong>Health Checks:</strong> Performs liveness/readiness probes</li>
+                </ul>
+            </div>
+
+            <div class="code-block">
+# Kubelet communicates with API server about pod status
+# When pod fails:
+# 1. Kubelet detects failure
+# 2. Reports to API server
+# 3. ReplicaSet controller gets notified
+# 4. New pod is scheduled to maintain desired count
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Question 10: Day-to-Day Kubernetes Activities</h2>
+            
+            <div class="activities-list">
+                <div class="activity">
+                    <h4>🛠️ Cluster Management</h4>
+                    <p>Manage and maintain Kubernetes clusters for the organization</p>
+                </div>
+                
+                <div class="activity">
+                    <h4>🚀 Application Deployment</h4>
+                    <p>Deploy applications onto clusters and ensure smooth operation</p>
+                </div>
+                
+                <div class="activity">
+                    <h4>📊 Monitoring Setup</h4>
+                    <p>Set up comprehensive monitoring for cluster health and performance</p>
+                </div>
+                
+                <div class="activity">
+                    <h4>🎓 SME Support</h4>
+                    <p>Provide expertise and troubleshoot Kubernetes issues for developers</p>
+                </div>
+                
+                <div class="activity">
+                    <h4>🔧 Maintenance</h4>
+                    <p>Perform cluster upgrades, patch management, and routine maintenance</p>
+                </div>
+                
+                <div class="activity">
+                    <h4>🔒 Security</h4>
+                    <p>Ensure nodes are secure and not exposed to vulnerabilities</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+# Common Daily Commands
+kubectl get pods --all-namespaces        # Check all pods
+kubectl get nodes                        # Check node status
+kubectl describe pod &lt;pod-name&gt;          # Debug pod issues
+kubectl logs &lt;pod-name&gt; -f              # Check logs
+kubectl apply -f deployment.yaml        # Deploy applications
+kubectl scale deployment &lt;name&gt; --replicas=5  # Scale applications
+kubectl get events --sort-by='.lastTimestamp'  # Check cluster events
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Quick Reference Commands</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+                
+                <div class="code-block">
+                    <h4 style="color: #3498db; margin-bottom: 15px;">🔍 Cluster Information</h4>
+kubectl cluster-info
+kubectl get componentstatuses
+kubectl get all --all-namespaces
+                </div>
+
+                <div class="code-block">
+                    <h4 style="color: #3498db; margin-bottom: 15px;">🖥️ Node Management</h4>
+kubectl get nodes
+kubectl get nodes -o wide
+kubectl describe node &lt;node-name&gt;
+kubectl cordon &lt;node-name&gt;
+kubectl uncordon &lt;node-name&gt;
+kubectl drain &lt;node-name&gt;
+                </div>
+
+                <div class="code-block">
+                    <h4 style="color: #3498db; margin-bottom: 15px;">📦 Pod Operations</h4>
+kubectl get pods
+kubectl get pods -o wide
+kubectl get pods --all-namespaces
+kubectl describe pod &lt;pod-name&gt;
+kubectl exec -it &lt;pod-name&gt; -- /bin/bash
+kubectl logs &lt;pod-name&gt;
+kubectl logs &lt;pod-name&gt; -f
+kubectl logs &lt;pod-name&gt; --previous
+kubectl port-forward &lt;pod-name&gt; 8080:80
+kubectl delete pod &lt;pod-name&gt;
+                </div>
+
+                <div class="code-block">
+                    <h4 style="color: #3498db; margin-bottom: 15px;">🚀 Deployment Operations</h4>
+kubectl get deployments
+kubectl create deployment &lt;name&gt; --image=&lt;image&gt;
+kubectl scale deployment &lt;name&gt; --replicas=3
+kubectl rollout status deployment/&lt;name&gt;
+kubectl rollout history deployment/&lt;name&gt;
+kubectl rollout undo deployment/&lt;name&gt;
+kubectl apply -f deployment.yaml
+                </div>
+
+                <div class="code-block">
+                    <h4 style="color: #3498db; margin-bottom: 15px;">🔌 Service Operations</h4>
+kubectl get services
+kubectl get svc
+kubectl describe service &lt;service-name&gt;
+kubectl expose deployment &lt;name&gt; --port=80
+kubectl expose deployment &lt;name&gt; --type=NodePort
+kubectl get endpoints
+                </div>
+
+                <div class="code-block">
+                    <h4 style="color: #3498db; margin-bottom: 15px;">🏢 Namespace Operations</h4>
+kubectl get namespaces
+kubectl get ns
+kubectl create namespace &lt;name&gt;
+kubectl delete namespace &lt;name&gt;
+kubectl config set-context --current --namespace=&lt;name&gt;
+kubectl get pods -n &lt;namespace&gt;
+                </div>
+
+                <div class="code-block">
+                    <h4 style="color: #3498db; margin-bottom: 15px;">📊 ConfigMap & Secrets</h4>
+kubectl get configmaps
+kubectl create configmap &lt;name&gt; --from-literal=key=value
+kubectl get secrets
+kubectl create secret generic &lt;name&gt; --from-literal=key=value
+kubectl describe configmap &lt;name&gt;
+                </div>
+
+                <div class="code-block">
+                    <h4 style="color: #3498db; margin-bottom: 15px;">🐛 Debugging & Troubleshooting</h4>
+kubectl describe &lt;resource&gt; &lt;name&gt;
+kubectl get events
+kubectl get events --sort-by='.lastTimestamp'
+kubectl top nodes
+kubectl top pods
+kubectl get pods --show-labels
+kubectl label pods &lt;pod-name&gt; &lt;key&gt;=&lt;value&gt;
+                </div>
+
+            </div>
+        </div>
+
+        <div class="tips">
+            <h4>🎓 Interview Tips:</h4>
+            <ul>
+                <li><strong>Practice explaining architecture</strong> - Draw diagrams if possible</li>
+                <li><strong>Know the differences</strong> - Docker vs K8s, services types, etc.</li>
+                <li><strong>Understand the flow</strong> - How components communicate</li>
+                <li><strong>Be specific about day-to-day activities</strong> - Show practical experience</li>
+                <li><strong>Know basic commands</strong> - Demonstrate hands-on knowledge</li>
+                <li><strong>Explain troubleshooting approach</strong> - Show problem-solving skills</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

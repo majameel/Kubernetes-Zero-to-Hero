@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Kubernetes Challenges - Day 43</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,50 Q30,30 40,50 T60,50 T80,50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><circle cx="50" cy="50" r="20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/><path d="M10,70 Q50,60 90,70" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-content {
+            padding: 2.5rem;
+            background: #f8f9fa;
+        }
+
+        .challenge-header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            font-weight: 500;
+            text-align: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .danger-box {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            border: 3px solid #ffffff;
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+        }
+
+        .problem-scenario {
+            background: #ffebee;
+            border: 3px solid #e74c3c;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .solution-approach {
+            background: #e8f5e8;
+            border: 3px solid #27ae60;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .resource-diagram {
+            background: white;
+            border: 3px solid #3498db;
+            border-radius: 15px;
+            padding: 3rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .cluster-resources {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .namespace-box {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .namespace-box.problem {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .namespace-box.protected {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+
+        .blast-radius {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .radius-step {
+            background: #3498db;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 50px;
+            min-width: 150px;
+            text-align: center;
+            font-weight: 600;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .radius-step.problem {
+            background: #e74c3c;
+        }
+
+        .radius-step.improved {
+            background: #f39c12;
+        }
+
+        .radius-step.optimal {
+            background: #27ae60;
+        }
+
+        .radius-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.8rem;
+            color: #2c3e50;
+        }
+
+        .step-sequence {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .step-number {
+            background: #3498db;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .yaml-block {
+            background: #34495e;
+            color: #ecf0f1;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(52, 73, 94, 0.3);
+            border-left: 4px solid #e74c3c;
+        }
+
+        .command-output {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid #27ae60;
+        }
+
+        .troubleshooting-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .troubleshooting-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            border-top: 4px solid #e74c3c;
+        }
+
+        .troubleshooting-card h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .upgrade-process {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .upgrade-manual {
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .rolling-upgrade {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .node-card {
+            background: #3498db;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+        }
+
+        .node-card.upgrading {
+            background: #f39c12;
+        }
+
+        .node-card.upgraded {
+            background: #27ae60;
+        }
+
+        .node-card.drained {
+            background: #e74c3c;
+        }
+
+        .interview-section {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .interview-tips {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .interview-tip {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .resource-allocation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            margin: 2rem 0;
+            border: 2px solid #3498db;
+        }
+
+        .resource-bar {
+            background: #ecf0f1;
+            height: 30px;
+            width: 200px;
+            border-radius: 15px;
+            position: relative;
+            margin: 0.5rem 0;
+        }
+
+        .resource-usage {
+            background: #e74c3c;
+            height: 100%;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .resource-usage.normal {
+            background: #27ae60;
+        }
+
+        .resource-usage.warning {
+            background: #f39c12;
+        }
+
+        @media (max-width: 768px) {
+            .cluster-resources, .rolling-upgrade {
+                grid-template-columns: 1fr;
+            }
+            
+            .blast-radius {
+                flex-direction: column;
+            }
+            
+            .radius-step:not(:last-child)::after {
+                content: '↓';
+                right: 50%;
+                top: 100%;
+                transform: translateX(50%);
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .emoji {
+            font-size: 1.2em;
+        }
+
+        .oom-demo {
+            background: #fff3cd;
+            border: 2px solid #f39c12;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="emoji">⚡</span> Real-Time Kubernetes Challenges</h1>
+            <p>Day 43 - Production Experience That Matters</p>
+            <p>Demonstrate Real DevOps Expertise in Interviews</p>
+        </div>
+
+        <div class="content">
+            <!-- Introduction -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🎯</span> Production-Ready Challenge Experience
+                </div>
+                <div class="section-content">
+                    <div class="highlight-box">
+                        <strong>Interview Success Strategy:</strong> Being able to explain these real-time challenges and how you solved them is <strong>crucial for demonstrating actual production experience</strong> to interviewers.
+                    </div>
+
+                    <div class="info-box">
+                        <h4><span class="emoji">💼</span> Why These Challenges Matter</h4>
+                        <p>These are three <strong>common challenges almost every DevOps engineer faces</strong> with Kubernetes clusters in production environments. Mastering these scenarios will:</p>
+                        <ul>
+                            <li>Prove you have real production experience</li>
+                            <li>Show you can solve complex resource management issues</li>
+                            <li>Demonstrate troubleshooting and problem-solving skills</li>
+                            <li>Illustrate your understanding of Kubernetes best practices</li>
+                        </ul>
+                    </div>
+
+                    <h3><span class="emoji">📋</span> The Three Critical Challenges</h3>
+                    <div class="troubleshooting-grid">
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">🔄</span> Challenge 1: Resource Sharing</h4>
+                            <p>Managing cluster resources among multiple teams without conflicts</p>
+                            <ul>
+                                <li>Resource Quotas on Namespaces</li>
+                                <li>Resource Limits on Pods</li>
+                                <li>Blast Radius Reduction</li>
+                            </ul>
+                        </div>
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">💥</span> Challenge 2: OOM Killed Issues</h4>
+                            <p>Diagnosing and resolving Out of Memory problems</p>
+                            <ul>
+                                <li>Memory leak identification</li>
+                                <li>Diagnostic data collection</li>
+                                <li>Developer collaboration</li>
+                            </ul>
+                        </div>
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">⬆️</span> Challenge 3: Cluster Upgrades</h4>
+                            <p>Safely upgrading production Kubernetes clusters</p>
+                            <ul>
+                                <li>Detailed upgrade manuals</li>
+                                <li>Rolling upgrade strategies</li>
+                                <li>Zero-downtime procedures</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4><span class="emoji">🎯</span> Interview Focus</h4>
+                        <p>Interviewers want to hear about:</p>
+                        <ul>
+                            <li><strong>Specific problems</strong> you've encountered</li>
+                            <li><strong>Step-by-step solutions</strong> you implemented</li>
+                            <li><strong>Lessons learned</strong> from real production environments</li>
+                            <li><strong>Prevention strategies</strong> you put in place</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Challenge 1: Resource Sharing -->
+            <div class="section">
+                <div class="challenge-header">
+                    <span class="emoji">🔄</span> Challenge 1: Resource Sharing in Kubernetes Clusters
+                </div>
+                <div class="section-content">
+                    <div class="problem-scenario">
+                        <h3><span class="emoji">🏗️</span> The Scenario</h3>
+                        <p>You have a Kubernetes cluster (dev, staging, or production) whose resources need to be shared among <strong>multiple development teams</strong> or project teams, each deploying their microservices. A single production cluster is typically shared, not one per team.</p>
+                        
+                        <h4>Example E-commerce Application Teams:</h4>
+                        <div class="cluster-resources">
+                            <div class="namespace-box">
+                                <h5><span class="emoji">💳</span> Payments Team</h5>
+                                <p>Payment processing microservices</p>
+                            </div>
+                            <div class="namespace-box">
+                                <h5><span class="emoji">🌐</span> Web Team</h5>
+                                <p>Frontend and web services</p>
+                            </div>
+                            <div class="namespace-box">
+                                <h5><span class="emoji">🚚</span> Delivery Team</h5>
+                                <p>Shipment and logistics services</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">⚠️</span> The Problem Without Resource Management</h3>
+                    <div class="danger-box">
+                        <h4><span class="emoji">💥</span> Cluster Resource Starvation</h4>
+                        <p><strong>Scenario:</strong> Cluster has 100 CPU and 100 GB RAM across multiple worker nodes</p>
+                        
+                        <div class="resource-allocation">
+                            <div>
+                                <h5>Expected Usage:</h5>
+                                <div class="resource-bar">
+                                    <div class="resource-usage normal" style="width: 60%;"></div>
+                                </div>
+                                <p>Normal: 60 GB RAM usage</p>
+                            </div>
+                            <div>
+                                <h5>Problem Scenario:</h5>
+                                <div class="resource-bar">
+                                    <div class="resource-usage" style="width: 90%;"></div>
+                                </div>
+                                <p>Memory Leak: 90 GB RAM usage</p>
+                            </div>
+                        </div>
+
+                        <h5>Impact Chain:</h5>
+                        <ul>
+                            <li><strong>Service Expected:</strong> 2 GB RAM usage</li>
+                            <li><strong>Actual Problem:</strong> Memory leak causes 32 GB consumption</li>
+                            <li><strong>Namespace Impact:</strong> One namespace uses 40 GB, leaving only 60 GB for all others</li>
+                            <li><strong>Cluster Impact:</strong> Services in other namespaces crash with <strong>OOM killed</strong></li>
+                            <li><strong>Result:</strong> Crash Loop BackOff state across multiple teams</li>
+                        </ul>
+                    </div>
+
+                    <h3><span class="emoji">🛡️</span> Solution Part 1: Resource Quotas on Namespaces</h3>
+                    <div class="solution-approach">
+                        <h4><span class="emoji">🎯</span> What are Resource Quotas?</h4>
+                        <p>A <strong>Resource Quota</strong> is a limit applied to a namespace. All services (pods) within that namespace combined cannot consume more than the allocated resources.</p>
+                        
+                        <div class="step-sequence">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h5>Performance Benchmarking with Teams</h5>
+                                    <p>Talk to development teams to determine resource requirements through <strong>performance benchmarking</strong></p>
+                                    <ul>
+                                        <li>Teams shouldn't guess large numbers</li>
+                                        <li>Require actual performance testing results</li>
+                                        <li>Example: Team requests 15 GB RAM + 15 CPU for their namespace</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h5>Create Resource Quota YAML</h5>
+                                    <div class="yaml-block">
+<pre>apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: payments-team-quota
+  namespace: payments
+spec:
+  hard:
+    requests.cpu: "15"
+    requests.memory: 15Gi
+    limits.cpu: "15"
+    limits.memory: 15Gi
+    persistentvolumeclaims: "10"
+    pods: "50"</pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h5>Apply and Verify Quota</h5>
+                                    <div class="code-block">
+<pre># Apply resource quota
+kubectl apply -f resource-quota.yaml
+
+# Verify quota status
+kubectl describe quota payments-team-quota -n payments
+
+# Check resource usage
+kubectl top pods -n payments</pre>
+                                    </div>
+                                    <div class="command-output">
+<pre>Name:       payments-team-quota
+Namespace:  payments
+Resource    Used   Hard
+--------    ----   ----
+limits.cpu     8   15
+limits.memory  6Gi 15Gi
+pods          12   50</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">📊</span> Blast Radius Reduction with Resource Quotas</h3>
+                    <div class="blast-radius">
+                        <div class="radius-step problem">
+                            <strong>Before:</strong><br>
+                            Entire Cluster<br>
+                            Impact
+                        </div>
+                        <div class="radius-step improved">
+                            <strong>After Quotas:</strong><br>
+                            Single Namespace<br>
+                            Impact
+                        </div>
+                    </div>
+
+                    <div class="cluster-resources">
+                        <div class="namespace-box protected">
+                            <h5><span class="emoji">💳</span> Payments (15GB)</h5>
+                            <p>Protected by quota</p>
+                        </div>
+                        <div class="namespace-box problem">
+                            <h5><span class="emoji">🌐</span> Web (Memory Leak)</h5>
+                            <p>Limited to 15GB max</p>
+                        </div>
+                        <div class="namespace-box protected">
+                            <h5><span class="emoji">🚚</span> Delivery (15GB)</h5>
+                            <p>Protected by quota</p>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4><span class="emoji">⚠️</span> Remaining Challenge</h4>
+                        <p>The impact is still within <strong>one particular namespace</strong>. If one service within a namespace with a 15 GB quota leaks memory, it could still consume a large portion of that 15 GB, potentially impacting other services <strong>within the same namespace</strong>.</p>
+                    </div>
+
+                    <h3><span class="emoji">🔒</span> Solution Part 2: Resource Limits on Pods</h3>
+                    <div class="solution-approach">
+                        <h4><span class="emoji">🎯</span> Individual Pod Resource Limits</h4>
+                        <p>While Resource Quotas limit namespaces, <strong>Resource Limits</strong> are limits set on individual pods to further reduce blast radius.</p>
+                        
+                        <div class="step-sequence">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h5>Get Per-Service Benchmarking</h5>
+                                    <p>Obtain performance data for <strong>each individual microservice/pod</strong></p>
+                                    <ul>
+                                        <li>Service A: 8 CPU, 8 GB RAM</li>
+                                        <li>Service B: 1 CPU, 1 GB RAM</li>
+                                        <li>Service C: 4 CPU, 4 GB RAM</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h5>Set Resource Limits in Deployment</h5>
+                                    <div class="yaml-block">
+<pre>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: payments
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: payment-app
+        image: payment-service:v1.2
+        resources:
+          requests:              # Minimum guaranteed resources
+            cpu: "2"
+            memory: "4Gi"
+          limits:                # Maximum allowed resources
+            cpu: "8"
+            memory: "8Gi"</pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h5>Monitor and Verify Limits</h5>
+                                    <div class="code-block">
+<pre># Check pod resource usage
+kubectl top pods -n payments
+
+# Describe pod for detailed resource info
+kubectl describe pod payment-service-abc123 -n payments
+
+# Monitor for OOM kills
+kubectl get events -n payments --field-selector reason=OOMKilling</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🎯</span> Final Blast Radius Reduction</h3>
+                    <div class="blast-radius">
+                        <div class="radius-step problem">
+                            <strong>No Limits:</strong><br>
+                            Entire Cluster<br>
+                            Impact
+                        </div>
+                        <div class="radius-step improved">
+                            <strong>Namespace Quotas:</strong><br>
+                            Single Namespace<br>
+                            Impact
+                        </div>
+                        <div class="radius-step optimal">
+                            <strong>Pod Limits:</strong><br>
+                            Single Pod<br>
+                            Impact
+                        </div>
+                    </div>
+
+                    <div class="success-box">
+                        <h4><span class="emoji">🎉</span> Challenge 1 Resolution</h4>
+                        <p>By implementing both <strong>Resource Quotas</strong> on namespaces and <strong>Resource Limits</strong> on pods:</p>
+                        <ul>
+                            <li>✅ <strong>Identify problematic pods:</strong> Exactly which pod is causing issues (OOM killed)</li>
+                            <li>✅ <strong>Contain impact:</strong> Blast radius reduced to single pod</li>
+                            <li>✅ <strong>Protect other services:</strong> Both namespace and cluster level protection</li>
+                            <li>✅ <strong>Enable quick resolution:</strong> Clear identification of root cause</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Challenge 2: OOM Killed Issues -->
+            <div class="section">
+                <div class="challenge-header">
+                    <span class="emoji">💥</span> Challenge 2: Resolving OOM Killed Issues
+                </div>
+                <div class="section-content">
+                    <div class="problem-scenario">
+                        <h3><span class="emoji">🚨</span> The Scenario</h3>
+                        <p>Even after implementing Resource Quotas and Resource Limits based on performance benchmarking, you might still see a specific pod going into an <strong>OOM killed</strong> state.</p>
+                        
+                        <div class="oom-demo">
+                            <h4>Typical OOM Symptoms:</h4>
+                            <div class="code-block">
+<pre># Pod status shows Crash Loop Back Off
+kubectl get pods -n payments</pre>
+                            </div>
+                            <div class="command-output">
+<pre>NAME                              READY   STATUS             RESTARTS   AGE
+payment-service-abc123-xyz789     0/1     CrashLoopBackOff   5          10m</pre>
+                            </div>
+                            <div class="code-block">
+<pre># Describe reveals OOM killed reason
+kubectl describe pod payment-service-abc123-xyz789 -n payments</pre>
+                            </div>
+                            <div class="command-output">
+<pre>Events:
+  Type     Reason     Age   From     Message
+  ----     ------     ----  ----     -------
+  Warning  Failed     2m    kubelet  Error: OOM killed</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">⚠️</span> The Problem</h3>
+                    <div class="danger-box">
+                        <h4><span class="emoji">🔍</span> Root Cause Analysis Needed</h4>
+                        <p>The pod is consuming more memory than its allocated Resource Limit and is being terminated by Kubernetes. This happens even though:</p>
+                        <ul>
+                            <li>Resources were allocated based on team's performance benchmarking</li>
+                            <li>Resource Quotas and Limits are properly configured</li>
+                            <li>Other pods in the namespace are working fine</li>
+                        </ul>
+                        <p><strong>DevOps Role:</strong> Gather diagnostic information to help developers identify the memory leak</p>
+                    </div>
+
+                    <h3><span class="emoji">🔬</span> Solution: Gathering Diagnostic Information</h3>
+                    <div class="solution-approach">
+                        <h4><span class="emoji">🎯</span> Diagnostic Data Collection Process</h4>
+                        <p>You need to collect data from the pod to understand <strong>why</strong> it's consuming excessive memory before it gets killed.</p>
+                        
+                        <div class="step-sequence">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h5>Access the Pod Before It Dies</h5>
+                                    <div class="code-block">
+<pre># Quickly exec into the problematic pod
+kubectl exec -it payment-service-abc123-xyz789 -n payments -- /bin/bash
+
+# Check current memory usage
+free -h
+top -p 1</pre>
+                                    </div>
+                                    <p><strong>Time-sensitive:</strong> Must capture data before Kubernetes kills the pod</p>
+                                </div>
+                            </div>
+
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h5>Collect Java Application Diagnostics</h5>
+                                    <p>For Java applications (common example), collect specific diagnostic data:</p>
+                                    <div class="code-block">
+<pre># Find Java process ID
+ps aux | grep java
+
+# Take thread dump (shows what threads are doing)
+kill -3 <java_process_id>
+
+# Take heap dump (shows memory allocation)
+jstack <java_process_id> > /tmp/thread_dump.txt
+
+# Generate heap dump for memory analysis
+jcmd <java_process_id> GC.run_finalization
+jcmd <java_process_id> VM.classloader_stats > /tmp/heap_info.txt</pre>
+                                    </div>
+                                    <div class="warning-box">
+                                        <h5><span class="emoji">⚠️</span> Language-Specific Commands</h5>
+                                        <p>Commands vary by programming language:</p>
+                                        <ul>
+                                            <li><strong>Java:</strong> jstack, jcmd, kill -3</li>
+                                            <li><strong>Python:</strong> py-spy, memory_profiler</li>
+                                            <li><strong>Go:</strong> pprof, runtime/debug</li>
+                                            <li><strong>Node.js:</strong> --inspect, heapdump</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h5>Extract Diagnostic Files</h5>
+                                    <div class="code-block">
+<pre># Copy diagnostic files from pod to local system
+kubectl cp payments/payment-service-abc123-xyz789:/tmp/thread_dump.txt ./thread_dump.txt
+kubectl cp payments/payment-service-abc123-xyz789:/tmp/heap_info.txt ./heap_info.txt
+
+# Get application logs for additional context
+kubectl logs payment-service-abc123-xyz789 -n payments > app_logs.txt</pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h5>Package and Share with Development Team</h5>
+                                    <div class="code-block">
+<pre># Create diagnostic package
+tar -czf oom_diagnostics_$(date +%Y%m%d_%H%M).tar.gz \
+    thread_dump.txt \
+    heap_info.txt \
+    app_logs.txt \
+    kubectl_describe_output.txt</pre>
+                                    </div>
+                                    <p><strong>Share with developers:</strong> Thread dumps, heap dumps, logs, and pod description</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">👥</span> Collaboration with Development Team</h3>
+                    <div class="troubleshooting-grid">
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">🔍</span> Developer Analysis</h4>
+                            <ul>
+                                <li>Analyze thread dumps for deadlocks</li>
+                                <li>Review heap dumps for memory leaks</li>
+                                <li>Identify problematic code sections</li>
+                                <li>Perform root cause analysis</li>
+                            </ul>
+                        </div>
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">🛠️</span> Development Process</h4>
+                            <ul>
+                                <li>Create Jira ticket for bug fix</li>
+                                <li>Fix memory leak in application code</li>
+                                <li>Perform local testing</li>
+                                <li>Build new application version</li>
+                            </ul>
+                        </div>
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">🚀</span> DevOps Actions</h4>
+                            <ul>
+                                <li>Deploy new application version</li>
+                                <li>Monitor for OOM issues</li>
+                                <li>Verify resource usage patterns</li>
+                                <li>Update documentation</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">📊</span> Advanced Monitoring Setup</h3>
+                    <div class="yaml-block">
+<pre># Enhanced monitoring for memory usage patterns
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: payment-service-monitor
+  namespace: payments
+spec:
+  selector:
+    matchLabels:
+      app: payment-service
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /actuator/prometheus</pre>
+                    </div>
+
+                    <div class="success-box">
+                        <h4><span class="emoji">🎉</span> Challenge 2 Resolution</h4>
+                        <p>Systematic diagnostic approach resolves OOM issues:</p>
+                        <ul>
+                            <li>✅ <strong>Quick identification:</strong> Recognize OOM symptoms immediately</li>
+                            <li>✅ <strong>Data collection:</strong> Gather comprehensive diagnostic information</li>
+                            <li>✅ <strong>Team collaboration:</strong> Provide developers with actionable data</li>
+                            <li>✅ <strong>Problem resolution:</strong> Deploy fixed application version</li>
+                            <li>✅ <strong>Prevention:</strong> Implement better monitoring and alerting</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Challenge 3: Kubernetes Upgrades -->
+            <div class="section">
+                <div class="challenge-header">
+                    <span class="emoji">⬆️</span> Challenge 3: Kubernetes Cluster Upgrades
+                </div>
+                <div class="section-content">
+                    <div class="problem-scenario">
+                        <h3><span class="emoji">🔄</span> The Scenario</h3>
+                        <p>Kubernetes versions are updated regularly (e.g., from 1.29 to 1.30). <strong>Upgrading a production cluster</strong> is a significant task that requires careful execution to avoid downtime or issues.</p>
+                        
+                        <div class="upgrade-process">
+                            <h4><span class="emoji">⚠️</span> Upgrade Challenges</h4>
+                            <ul>
+                                <li><strong>Breaking Changes:</strong> API deprecations and removals</li>
+                                <li><strong>Downtime Risk:</strong> Service interruptions during upgrade</li>
+                                <li><strong>Rollback Complexity:</strong> Difficult to revert if issues occur</li>
+                                <li><strong>Multi-Component:</strong> Control plane and worker nodes</li>
+                                <li><strong>Dependency Management:</strong> Application compatibility</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">📋</span> Solution: Detailed Upgrade Manual</h3>
+                    <div class="solution-approach">
+                        <h4><span class="emoji">🎯</span> Creating Comprehensive Upgrade Documentation</h4>
+                        <p>Demonstrate your upgrade experience by creating and following a <strong>detailed, step-by-step manual</strong> for the upgrade process.</p>
+                        
+                        <div class="upgrade-manual">
+                            <h5>Upgrade Manual Structure:</h5>
+                            <div class="step-sequence">
+                                <div class="step">
+                                    <div class="step-number">1</div>
+                                    <div class="step-content">
+                                        <h5>Prerequisites Assessment</h5>
+                                        <ul>
+                                            <li>Current cluster version verification</li>
+                                            <li>Resource capacity evaluation</li>
+                                            <li>Maintenance window scheduling</li>
+                                            <li>Team coordination and notifications</li>
+                                        </ul>
+                                        <div class="code-block">
+<pre># Check current Kubernetes version
+kubectl version --short
+
+# Verify cluster health
+kubectl get nodes
+kubectl get pods --all-namespaces
+kubectl top nodes</pre>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="step">
+                                    <div class="step-number">2</div>
+                                    <div class="step-content">
+                                        <h5>Backup Strategy</h5>
+                                        <p><strong>Critical:</strong> Backup cluster resources before upgrade</p>
+                                        <div class="code-block">
+<pre># Backup etcd data
+ETCDCTL_API=3 etcdctl snapshot save backup.db \
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key
+
+# Backup all cluster resources
+kubectl get all --all-namespaces -o yaml > cluster-backup.yaml
+
+# Backup custom resources
+kubectl get crd -o yaml > crd-backup.yaml</pre>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="step">
+                                    <div class="step-number">3</div>
+                                    <div class="step-content">
+                                        <h5>Release Notes Analysis</h5>
+                                        <p><strong>Very Important:</strong> Read and understand Kubernetes release notes</p>
+                                        <div class="warning-box">
+                                            <h6><span class="emoji">📖</span> Release Notes Checklist</h6>
+                                            <ul>
+                                                <li><strong>Breaking Changes:</strong> API removals, behavior changes</li>
+                                                <li><strong>Deprecated Features:</strong> Features marked for removal</li>
+                                                <li><strong>Feature Status:</strong> Beta to stable transitions</li>
+                                                <li><strong>Known Issues:</strong> Documented problems and workarounds</li>
+                                                <li><strong>Prerequisites:</strong> Required steps or versions</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🏗️</span> Control Plane Upgrade Process</h3>
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h5>etcd Upgrade</h5>
+                                <div class="code-block">
+<pre># Check etcd health before upgrade
+kubectl get pods -n kube-system | grep etcd
+
+# Upgrade etcd (specific steps depend on installation method)
+# For kubeadm clusters:
+sudo kubeadm upgrade plan
+sudo kubeadm upgrade apply v1.30.0</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h5>API Server Upgrade</h5>
+                                <div class="code-block">
+<pre># Upgrade kube-apiserver
+sudo systemctl stop kube-apiserver
+# Update binary or container image
+sudo systemctl start kube-apiserver
+
+# Verify API server health
+kubectl get --raw='/readyz?verbose'</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h5>Scheduler and Controller Manager</h5>
+                                <div class="code-block">
+<pre># Upgrade in correct order
+sudo systemctl stop kube-scheduler
+sudo systemctl stop kube-controller-manager
+
+# Update binaries/images
+# Start services
+sudo systemctl start kube-controller-manager
+sudo systemctl start kube-scheduler</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🔄</span> Worker Node Rolling Upgrade</h3>
+                    <div class="rolling-upgrade">
+                        <div class="node-card">
+                            <h5>Node 1</h5>
+                            <p>v1.29 → v1.30</p>
+                            <p><strong>Status:</strong> Upgraded</p>
+                        </div>
+                        <div class="node-card upgrading">
+                            <h5>Node 2</h5>
+                            <p>v1.29 → v1.30</p>
+                            <p><strong>Status:</strong> Upgrading</p>
+                        </div>
+                        <div class="node-card">
+                            <h5>Node 3</h5>
+                            <p>v1.29</p>
+                            <p><strong>Status:</strong> Waiting</p>
+                        </div>
+                    </div>
+
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h5>Select First Worker Node</h5>
+                                <div class="code-block">
+<pre># Choose node for upgrade
+kubectl get nodes
+
+# Check what pods are running on the node
+kubectl get pods --all-namespaces --field-selector spec.nodeName=worker-node-1</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h5>Drain the Node</h5>
+                                <div class="code-block">
+<pre># Gracefully move pods to other nodes
+kubectl drain worker-node-1 --ignore-daemonsets --delete-emptydir-data
+
+# This gives scheduler time to reschedule pods</pre>
+                                </div>
+                                <div class="command-output">
+<pre>node/worker-node-1 cordoned
+WARNING: deleting Pods not managed by ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet
+pod/standalone-pod evicted
+node/worker-node-1 drained</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h5>Make Node Unschedulable</h5>
+                                <div class="code-block">
+<pre># Ensure no new pods scheduled (often done with drain)
+kubectl cordon worker-node-1
+
+# Verify node status
+kubectl get nodes</pre>
+                                </div>
+                                <div class="command-output">
+<pre>NAME           STATUS                     ROLES    AGE   VERSION
+master-node    Ready                      master   10d   v1.30.0
+worker-node-1  Ready,SchedulingDisabled   &lt;none&gt;   10d   v1.29.0
+worker-node-2  Ready                      &lt;none&gt;   10d   v1.29.0
+worker-node-3  Ready                      &lt;none&gt;   10d   v1.29.0</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h5>Upgrade the Node</h5>
+                                <div class="code-block">
+<pre># SSH to the worker node
+ssh user@worker-node-1
+
+# Upgrade kubelet and other components
+sudo apt-get update
+sudo apt-get install -y kubelet=1.30.0-00 kubeadm=1.30.0-00
+sudo systemctl daemon-reload
+sudo systemctl restart kubelet</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">5</div>
+                            <div class="step-content">
+                                <h5>Rejoin Node to Cluster</h5>
+                                <div class="code-block">
+<pre># Remove scheduling restriction
+kubectl uncordon worker-node-1
+
+# Verify node is ready and schedulable
+kubectl get nodes</pre>
+                                </div>
+                                <div class="command-output">
+<pre>NAME           STATUS   ROLES    AGE   VERSION
+master-node    Ready    master   10d   v1.30.0
+worker-node-1  Ready    &lt;none&gt;   10d   v1.30.0  # Upgraded!
+worker-node-2  Ready    &lt;none&gt;   10d   v1.29.0
+worker-node-3  Ready    &lt;none&gt;   10d   v1.29.0</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">6</div>
+                            <div class="step-content">
+                                <h5>Repeat for Remaining Nodes</h5>
+                                <p>Continue the process for each remaining worker node:</p>
+                                <ul>
+                                    <li>Drain → Cordon → Upgrade → Uncordon</li>
+                                    <li>Verify each node before proceeding to next</li>
+                                    <li>Monitor application health throughout</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">✅</span> Post-Upgrade Verification</h3>
+                    <div class="troubleshooting-grid">
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">🔍</span> Cluster Health Check</h4>
+                            <div class="code-block">
+<pre># Verify all nodes upgraded
+kubectl get nodes
+
+# Check system pods
+kubectl get pods -n kube-system
+
+# Verify cluster info
+kubectl cluster-info</pre>
+                            </div>
+                        </div>
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">🔧</span> Application Testing</h4>
+                            <div class="code-block">
+<pre># Test application endpoints
+curl -k https://app.example.com/health
+
+# Check pod status
+kubectl get pods --all-namespaces
+
+# Monitor logs for errors
+kubectl logs -l app=critical-app</pre>
+                            </div>
+                        </div>
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">📊</span> Performance Monitoring</h4>
+                            <div class="code-block">
+<pre># Monitor resource usage
+kubectl top nodes
+kubectl top pods
+
+# Check metrics server
+kubectl get apiservice v1beta1.metrics.k8s.io</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="success-box">
+                        <h4><span class="emoji">🎉</span> Challenge 3 Resolution</h4>
+                        <p>Successful cluster upgrade through careful planning:</p>
+                        <ul>
+                            <li>✅ <strong>Zero downtime:</strong> Rolling upgrade maintains service availability</li>
+                            <li>✅ <strong>Risk mitigation:</strong> Comprehensive backup and testing strategy</li>
+                            <li>✅ <strong>Documented process:</strong> Repeatable procedure for future upgrades</li>
+                            <li>✅ <strong>Team confidence:</strong> Proven upgrade methodology</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interview Preparation -->
+            <div class="interview-section">
+                <h2><span class="emoji">💼</span> Interview Success: Demonstrating Real Experience</h2>
+                <p>Use these challenges to showcase your production Kubernetes expertise:</p>
+                
+                <div class="interview-tips">
+                    <div class="interview-tip">
+                        <h4><span class="emoji">🎯</span> Challenge 1 Story</h4>
+                        <p><strong>"In our production environment, we had multiple teams sharing a cluster..."</strong></p>
+                        <ul>
+                            <li>Describe the multi-team scenario</li>
+                            <li>Explain resource contention issues</li>
+                            <li>Detail your quota and limit solution</li>
+                            <li>Quantify the blast radius reduction</li>
+                        </ul>
+                    </div>
+                    <div class="interview-tip">
+                        <h4><span class="emoji">🔍</span> Challenge 2 Story</h4>
+                        <p><strong>"We encountered persistent OOM issues despite proper resource allocation..."</strong></p>
+                        <ul>
+                            <li>Explain diagnostic data collection</li>
+                            <li>Describe collaboration with developers</li>
+                            <li>Detail the root cause analysis process</li>
+                            <li>Show problem resolution approach</li>
+                        </ul>
+                    </div>
+                    <div class="interview-tip">
+                        <h4><span class="emoji">⬆️</span> Challenge 3 Story</h4>
+                        <p><strong>"I led the upgrade of our production cluster from 1.29 to 1.30..."</strong></p>
+                        <ul>
+                            <li>Describe upgrade planning process</li>
+                            <li>Explain release notes analysis</li>
+                            <li>Detail rolling upgrade execution</li>
+                            <li>Show zero-downtime achievement</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <strong><span class="emoji">🎯</span> Interview Success Formula:</strong><br>
+                    Problem Description + Your Solution + Measurable Results + Lessons Learned = Convincing Real Experience!
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🎯</span> Summary: Production-Ready DevOps Skills
+                </div>
+                <div class="section-content">
+                    <div class="success-box">
+                        <h4><span class="emoji">🏆</span> What You've Mastered</h4>
+                        <ul>
+                            <li>✅ <strong>Resource Management:</strong> Quotas and limits for multi-team clusters</li>
+                            <li>✅ <strong>Troubleshooting:</strong> OOM issue diagnosis and resolution</li>
+                            <li>✅ <strong>Cluster Operations:</strong> Safe production upgrade procedures</li>
+                            <li>✅ <strong>Interview Readiness:</strong> Real-world experience stories</li>
+                            <li>✅ <strong>Best Practices:</strong> Production-grade cluster management</li>
+                        </ul>
+                    </div>
+
+                    <h3><span class="emoji">🔑</span> Key Takeaways for Production</h3>
+                    <div class="troubleshooting-grid">
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">⚖️</span> Resource Strategy</h4>
+                            <ul>
+                                <li>Always implement namespace quotas</li>
+                                <li>Set pod-level resource limits</li>
+                                <li>Base allocations on performance testing</li>
+                                <li>Monitor and adjust regularly</li>
+                            </ul>
+                        </div>
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">🔬</span> Troubleshooting Approach</h4>
+                            <ul>
+                                <li>Collect comprehensive diagnostic data</li>
+                                <li>Collaborate effectively with developers</li>
+                                <li>Document issues and solutions</li>
+                                <li>Implement monitoring improvements</li>
+                            </ul>
+                        </div>
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">📋</span> Upgrade Excellence</h4>
+                            <ul>
+                                <li>Create detailed upgrade manuals</li>
+                                <li>Always backup before changes</li>
+                                <li>Read and understand release notes</li>
+                                <li>Use rolling upgrade strategies</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h4><span class="emoji">💡</span> Beyond These Challenges</h4>
+                        <p>These three challenges represent core DevOps skills. Additional production challenges might include:</p>
+                        <ul>
+                            <li>Network policy implementation and troubleshooting</li>
+                            <li>Storage and persistent volume management</li>
+                            <li>Security scanning and vulnerability management</li>
+                            <li>Disaster recovery and backup strategies</li>
+                            <li>Multi-cluster and multi-region deployments</li>
+                        </ul>
+                    </div>
+
+                    <div class="highlight-box">
+                        <strong><span class="emoji">🚀</span> Career Impact:</strong><br>
+                        Mastering these real-time challenges positions you as an experienced production DevOps engineer capable of handling complex Kubernetes environments!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

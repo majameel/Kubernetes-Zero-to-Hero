@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Architecture - Day 31</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><circle cx="20" cy="30" r="15" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/><circle cx="80" cy="70" r="20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .k8s-fun {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-content {
+            padding: 2.5rem;
+            background: #f8f9fa;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            font-weight: 500;
+            text-align: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .architecture-diagram {
+            background: white;
+            border: 3px solid #3498db;
+            border-radius: 15px;
+            padding: 3rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .control-plane {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .data-plane {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .component-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            border-top: 4px solid #3498db;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .component-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .component-card h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .component-card.master {
+            border-top-color: #e74c3c;
+        }
+
+        .component-card.worker {
+            border-top-color: #27ae60;
+        }
+
+        .comparison-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .docker-side {
+            background: #e8f4fd;
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .kubernetes-side {
+            background: #e8f5e8;
+            border: 2px solid #27ae60;
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .flow-step {
+            background: #3498db;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 50px;
+            min-width: 150px;
+            text-align: center;
+            font-weight: 600;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .flow-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.8rem;
+            color: #2c3e50;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .yaml-block {
+            background: #34495e;
+            color: #ecf0f1;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(52, 73, 94, 0.3);
+        }
+
+        .pod-creation-flow {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .step-by-step {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .step-number {
+            background: #3498db;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .advantages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .advantage-card {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .cluster-diagram {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 2rem;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .master-section {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+        }
+
+        .workers-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .worker-node {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .assignment-section {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .assignment-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .assignment-step {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .interactive-element {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .interactive-element:hover {
+            transform: scale(1.05);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 2rem 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 1.5rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 1.5rem;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .flow-diagram {
+                flex-direction: column;
+            }
+            
+            .flow-step:not(:last-child)::after {
+                content: '↓';
+                right: 50%;
+                top: 100%;
+                transform: translateX(50%);
+            }
+            
+            .cluster-diagram {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .emoji {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="emoji">☸️</span> Kubernetes Architecture</h1>
+            <p>Day 31 - Complete DevOps Course</p>
+            <p>Master the Control Plane & Data Plane</p>
+            <div class="k8s-fun">
+                <strong>🤔 Fun Question:</strong> Why is Kubernetes called <strong>K8s</strong>?<br>
+                <small>(Hint: Count the letters between K and s!)</small>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Introduction Section -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🎯</span> Understanding Kubernetes Architecture
+                </div>
+                <div class="section-content">
+                    <div class="warning-box">
+                        <h4><span class="emoji">⚠️</span> Prerequisites Check</h4>
+                        <p>Make sure you've watched <strong>Day 30</strong> covering Docker vs Kubernetes fundamentals. Without understanding the four key problems Docker faces, the architecture reasoning won't be clear!</p>
+                    </div>
+
+                    <h3><span class="emoji">🚀</span> Kubernetes Four Fundamental Advantages</h3>
+                    <div class="advantages-grid">
+                        <div class="advantage-card">
+                            <h4><span class="emoji">🏗️</span> Cluster Nature</h4>
+                            <p>Cluster behavior by default, not single host limitation</p>
+                        </div>
+                        <div class="advantage-card">
+                            <h4><span class="emoji">🔄</span> Auto Healing</h4>
+                            <p>Automatic recovery without manual intervention</p>
+                        </div>
+                        <div class="advantage-card">
+                            <h4><span class="emoji">📈</span> Auto Scaling</h4>
+                            <p>Dynamic scaling based on demand</p>
+                        </div>
+                        <div class="advantage-card">
+                            <h4><span class="emoji">🏢</span> Enterprise Support</h4>
+                            <p>Advanced load balancing, security, networking</p>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h4><span class="emoji">💡</span> Architecture Learning Approach</h4>
+                        <p>Instead of just listing components, we'll compare Docker container creation with Kubernetes Pod creation to understand <strong>WHY</strong> each component exists and what it does.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Docker vs Kubernetes Comparison -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">⚖️</span> Docker vs Kubernetes: Component Comparison
+                </div>
+                <div class="section-content">
+                    <div class="highlight-box">
+                        <strong>Key Insight:</strong> Docker's simplest unit = <strong>Container</strong><br>
+                        Kubernetes' simplest unit = <strong>Pod</strong>
+                    </div>
+
+                    <div class="comparison-section">
+                        <div class="docker-side">
+                            <h3><span class="emoji">🐳</span> Docker Container Creation</h3>
+                            <div class="step-by-step">
+                                <div class="step">
+                                    <div class="step-number">1</div>
+                                    <div>
+                                        <strong>User Action:</strong> Write Dockerfile & build image
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">2</div>
+                                    <div>
+                                        <strong>Run Command:</strong> <code>docker run image_name</code>
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">3</div>
+                                    <div>
+                                        <strong>Requirement:</strong> Container Runtime (Docker shim)
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">4</div>
+                                    <div>
+                                        <strong>Result:</strong> Container runs on single host
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="code-block">
+<pre># Docker container creation
+docker build -t my-app .
+docker run -d --name my-container my-app
+
+# Single host limitation
+docker ps  # Shows containers on this host only</pre>
+                            </div>
+                        </div>
+
+                        <div class="kubernetes-side">
+                            <h3><span class="emoji">☸️</span> Kubernetes Pod Creation</h3>
+                            <div class="step-by-step">
+                                <div class="step">
+                                    <div class="step-number">1</div>
+                                    <div>
+                                        <strong>User Action:</strong> Request goes to Master (Control Plane)
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">2</div>
+                                    <div>
+                                        <strong>API Server:</strong> Receives request & processes
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">3</div>
+                                    <div>
+                                        <strong>Scheduler:</strong> Decides which Worker Node
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">4</div>
+                                    <div>
+                                        <strong>Worker Node:</strong> kubelet + Container Runtime
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="yaml-block">
+<pre># Kubernetes Pod creation
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: my-container
+    image: my-app:latest
+
+# Apply to cluster
+kubectl apply -f pod.yaml</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Worker Node Components -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🔧</span> Worker Node (Data Plane) Components
+                </div>
+                <div class="section-content">
+                    <div class="data-plane">
+                        <h3><span class="emoji">💻</span> Data Plane - Where Your Applications Run</h3>
+                        <p>The execution environment for your containers and Pods</p>
+                    </div>
+
+                    <div class="components-grid">
+                        <div class="component-card worker">
+                            <h4><span class="emoji">🤖</span> kubelet</h4>
+                            <p><strong>Primary Role:</strong> Pod lifecycle management</p>
+                            <ul>
+                                <li>Ensures Pods are always running</li>
+                                <li>Monitors Pod health continuously</li>
+                                <li>Reports Pod status to Control Plane</li>
+                                <li>Triggers auto-healing when needed</li>
+                            </ul>
+                            <div class="code-block">
+<pre># kubelet responsibilities
+- Pod creation & deletion
+- Health monitoring
+- Resource allocation
+- Status reporting</pre>
+                            </div>
+                        </div>
+
+                        <div class="component-card worker">
+                            <h4><span class="emoji">🌐</span> kube-proxy</h4>
+                            <p><strong>Primary Role:</strong> Networking & Load Balancing</p>
+                            <ul>
+                                <li>Assigns IP addresses to Pods</li>
+                                <li>Provides default load balancing</li>
+                                <li>Manages network routing</li>
+                                <li>Uses Linux iptables for configuration</li>
+                            </ul>
+                            <div class="code-block">
+<pre># kube-proxy functions
+- IP address management
+- Load balancing (50%-50% traffic split)
+- Network proxy services
+- iptables rule management</pre>
+                            </div>
+                        </div>
+
+                        <div class="component-card worker">
+                            <h4><span class="emoji">📦</span> Container Runtime</h4>
+                            <p><strong>Primary Role:</strong> Container execution</p>
+                            <ul>
+                                <li>Actually runs containers inside Pods</li>
+                                <li>Supports multiple runtimes</li>
+                                <li>Implements Container Runtime Interface (CRI)</li>
+                                <li>Docker is NOT mandatory!</li>
+                            </ul>
+                            <div class="info-box">
+                                <h4><span class="emoji">🔄</span> Supported Container Runtimes</h4>
+                                <ul>
+                                    <li><strong>containerd</strong> - Most popular</li>
+                                    <li><strong>CRI-O</strong> - Red Hat optimized</li>
+                                    <li><strong>Docker shim</strong> - Traditional Docker</li>
+                                    <li><strong>Any CRI-compliant runtime</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="success-box">
+                        <h4><span class="emoji">✅</span> Worker Node Summary</h4>
+                        <p>With these <strong>three components</strong>, you have everything needed to run applications on a Worker Node. The Worker Node is the <strong>execution environment</strong> where your actual workloads run.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Master Node Components -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🎛️</span> Master Node (Control Plane) Components
+                </div>
+                <div class="section-content">
+                    <div class="control-plane">
+                        <h3><span class="emoji">🧠</span> Control Plane - The Brain of Kubernetes</h3>
+                        <p>Makes all the decisions and manages the entire cluster</p>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4><span class="emoji">❓</span> Why Do We Need a Control Plane?</h4>
+                        <p>For enterprise-level tools, you need centralized management for:</p>
+                        <ul>
+                            <li>🎯 <strong>Decision Making:</strong> Where should Pods be scheduled?</li>
+                            <li>🔒 <strong>Security & Identity:</strong> Who can access what?</li>
+                            <li>📋 <strong>Request Handling:</strong> Processing user requests</li>
+                            <li>🏗️ <strong>Cluster Management:</strong> Maintaining desired state</li>
+                        </ul>
+                    </div>
+
+                    <div class="components-grid">
+                        <div class="component-card master">
+                            <h4><span class="emoji">🚪</span> API Server</h4>
+                            <p><strong>Role:</strong> The Heart of Kubernetes</p>
+                            <ul>
+                                <li>Central entry point for all requests</li>
+                                <li>Exposes Kubernetes cluster to external world</li>
+                                <li>Handles authentication & authorization</li>
+                                <li>Validates and processes API requests</li>
+                            </ul>
+                            <div class="code-block">
+<pre># All kubectl commands go through API Server
+kubectl get pods
+kubectl create deployment nginx --image=nginx
+kubectl delete pod my-pod
+
+# API Server validates and processes these</pre>
+                            </div>
+                        </div>
+
+                        <div class="component-card master">
+                            <h4><span class="emoji">📅</span> Scheduler</h4>
+                            <p><strong>Role:</strong> Pod Placement Decision Maker</p>
+                            <ul>
+                                <li>Decides which Worker Node gets which Pod</li>
+                                <li>Considers resource requirements</li>
+                                <li>Evaluates node capacity and constraints</li>
+                                <li>Optimizes cluster resource utilization</li>
+                            </ul>
+                            <div class="yaml-block">
+<pre># Scheduler considers:
+- Node resource availability (CPU, Memory)
+- Pod resource requirements
+- Node affinity rules
+- Taints and tolerations
+- Anti-affinity rules</pre>
+                            </div>
+                        </div>
+
+                        <div class="component-card master">
+                            <h4><span class="emoji">🗄️</span> etcd</h4>
+                            <p><strong>Role:</strong> Cluster State Database</p>
+                            <ul>
+                                <li>Distributed key-value store</li>
+                                <li>Stores ALL cluster information</li>
+                                <li>Critical for disaster recovery</li>
+                                <li>Must be backed up regularly</li>
+                            </ul>
+                            <div class="warning-box">
+                                <h4><span class="emoji">💾</span> etcd Importance</h4>
+                                <p>Without etcd, you lose your entire cluster state! It stores:</p>
+                                <ul>
+                                    <li>Pod definitions and status</li>
+                                    <li>Service configurations</li>
+                                    <li>Secrets and ConfigMaps</li>
+                                    <li>Cluster metadata</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="component-card master">
+                            <h4><span class="emoji">🎮</span> Controller Manager</h4>
+                            <p><strong>Role:</strong> Maintains Desired State</p>
+                            <ul>
+                                <li>Manages Kubernetes built-in controllers</li>
+                                <li>Ensures Replica Sets maintain desired count</li>
+                                <li>Handles auto-scaling operations</li>
+                                <li>Monitors and corrects cluster state</li>
+                            </ul>
+                            <div class="info-box">
+                                <h4><span class="emoji">🔄</span> Key Controllers</h4>
+                                <ul>
+                                    <li><strong>Replication Controller:</strong> Maintains Pod replicas</li>
+                                    <li><strong>Deployment Controller:</strong> Manages deployments</li>
+                                    <li><strong>Service Controller:</strong> Manages services</li>
+                                    <li><strong>Node Controller:</strong> Monitors node health</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="component-card master">
+                            <h4><span class="emoji">☁️</span> Cloud Controller Manager (CCM)</h4>
+                            <p><strong>Role:</strong> Cloud Provider Integration</p>
+                            <ul>
+                                <li>Translates Kubernetes requests to cloud APIs</li>
+                                <li>Manages cloud-specific resources</li>
+                                <li>Handles load balancer creation</li>
+                                <li>Manages cloud storage integration</li>
+                            </ul>
+                            <div class="code-block">
+<pre># Cloud integrations handled by CCM:
+- AWS EKS (Elastic Kubernetes Service)
+- Azure AKS (Azure Kubernetes Service)  
+- GCP GKE (Google Kubernetes Engine)
+- Custom cloud providers</pre>
+                            </div>
+                            <div class="warning-box">
+                                <h4><span class="emoji">🏠</span> On-Premise Note</h4>
+                                <p>If running Kubernetes on-premise, <strong>Cloud Controller Manager is NOT required</strong>!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complete Architecture Overview -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🏗️</span> Complete Kubernetes Architecture
+                </div>
+                <div class="section-content">
+                    <div class="cluster-diagram">
+                        <div class="master-section">
+                            <h3><span class="emoji">🎛️</span> Control Plane</h3>
+                            <h4>Master Node Components:</h4>
+                            <ul>
+                                <li><span class="emoji">🚪</span> API Server</li>
+                                <li><span class="emoji">📅</span> Scheduler</li>
+                                <li><span class="emoji">🗄️</span> etcd</li>
+                                <li><span class="emoji">🎮</span> Controller Manager</li>
+                                <li><span class="emoji">☁️</span> Cloud Controller Manager</li>
+                            </ul>
+                            <p><strong>Role:</strong> Controls and manages</p>
+                        </div>
+                        <div class="workers-section">
+                            <div class="worker-node">
+                                <h4><span class="emoji">💻</span> Worker Node 1</h4>
+                                <ul>
+                                    <li><span class="emoji">🤖</span> kubelet</li>
+                                    <li><span class="emoji">🌐</span> kube-proxy</li>
+                                    <li><span class="emoji">📦</span> Container Runtime</li>
+                                </ul>
+                            </div>
+                            <div class="worker-node">
+                                <h4><span class="emoji">💻</span> Worker Node 2</h4>
+                                <ul>
+                                    <li><span class="emoji">🤖</span> kubelet</li>
+                                    <li><span class="emoji">🌐</span> kube-proxy</li>
+                                    <li><span class="emoji">📦</span> Container Runtime</li>
+                                </ul>
+                            </div>
+                            <div class="worker-node">
+                                <h4><span class="emoji">💻</span> Worker Node 3</h4>
+                                <ul>
+                                    <li><span class="emoji">🤖</span> kubelet</li>
+                                    <li><span class="emoji">🌐</span> kube-proxy</li>
+                                    <li><span class="emoji">📦</span> Container Runtime</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Component</th>
+                                    <th>Location</th>
+                                    <th>Primary Function</th>
+                                    <th>Key Responsibility</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>API Server</strong></td>
+                                    <td>Master</td>
+                                    <td>Cluster Gateway</td>
+                                    <td>Process all requests</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Scheduler</strong></td>
+                                    <td>Master</td>
+                                    <td>Pod Placement</td>
+                                    <td>Decide where Pods run</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>etcd</strong></td>
+                                    <td>Master</td>
+                                    <td>Data Store</td>
+                                    <td>Store cluster state</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Controller Manager</strong></td>
+                                    <td>Master</td>
+                                    <td>State Management</td>
+                                    <td>Maintain desired state</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>CCM</strong></td>
+                                    <td>Master</td>
+                                    <td>Cloud Integration</td>
+                                    <td>Manage cloud resources</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>kubelet</strong></td>
+                                    <td>Worker</td>
+                                    <td>Pod Management</td>
+                                    <td>Ensure Pods run healthy</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>kube-proxy</strong></td>
+                                    <td>Worker</td>
+                                    <td>Networking</td>
+                                    <td>Route traffic to Pods</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Container Runtime</strong></td>
+                                    <td>Worker</td>
+                                    <td>Container Execution</td>
+                                    <td>Run actual containers</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pod Creation Workflow -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🔄</span> Pod Creation Workflow
+                </div>
+                <div class="section-content">
+                    <h3><span class="emoji">📋</span> Step-by-Step Pod Creation Process</h3>
+                    <div class="pod-creation-flow">
+                        <div class="flow-diagram">
+                            <div class="flow-step">User Request</div>
+                            <div class="flow-step">API Server</div>
+                            <div class="flow-step">etcd Store</div>
+                            <div class="flow-step">Scheduler</div>
+                            <div class="flow-step">kubelet</div>
+                            <div class="flow-step">Container Runtime</div>
+                            <div class="flow-step">Pod Running</div>
+                        </div>
+
+                        <div class="step-by-step">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div>
+                                    <strong>User submits Pod YAML:</strong> 
+                                    <code>kubectl apply -f pod.yaml</code>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div>
+                                    <strong>API Server receives request:</strong> Validates authentication, authorization, and Pod specification
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div>
+                                    <strong>etcd stores Pod definition:</strong> Pod spec saved in cluster database
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div>
+                                    <strong>Scheduler decides placement:</strong> Evaluates Worker Nodes and selects optimal node
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div>
+                                    <strong>kubelet creates Pod:</strong> kubelet on selected Worker Node receives instruction
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">6</div>
+                                <div>
+                                    <strong>Container Runtime starts containers:</strong> Pulls images and starts containers inside Pod
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">7</div>
+                                <div>
+                                    <strong>kube-proxy configures networking:</strong> Assigns IP and configures routing
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="yaml-block">
+<pre># Example Pod YAML
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"</pre>
+                    </div>
+
+                    <div class="success-box">
+                        <h4><span class="emoji">🎯</span> Key Insight</h4>
+                        <p>Notice how the <strong>Control Plane makes decisions</strong> (API Server, Scheduler) while the <strong>Data Plane executes</strong> (kubelet, Container Runtime). This separation provides the enterprise-level orchestration capabilities!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interview Preparation -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">💼</span> Interview Preparation Guide
+                </div>
+                <div class="section-content">
+                    <div class="info-box">
+                        <h4><span class="emoji">🎯</span> Common Interview Questions</h4>
+                        <p>Be prepared to explain these concepts clearly:</p>
+                    </div>
+
+                    <div class="components-grid">
+                        <div class="component-card">
+                            <h4><span class="emoji">❓</span> Architecture Overview</h4>
+                            <p>"Explain Kubernetes architecture"</p>
+                            <ul>
+                                <li>Control Plane vs Data Plane</li>
+                                <li>Master vs Worker components</li>
+                                <li>How components interact</li>
+                            </ul>
+                        </div>
+                        <div class="component-card">
+                            <h4><span class="emoji">❓</span> Component Functions</h4>
+                            <p>"What does each component do?"</p>
+                            <ul>
+                                <li>API Server role</li>
+                                <li>etcd importance</li>
+                                <li>kubelet responsibilities</li>
+                            </ul>
+                        </div>
+                        <div class="component-card">
+                            <h4><span class="emoji">❓</span> Pod Creation Process</h4>
+                            <p>"How is a Pod created?"</p>
+                            <ul>
+                                <li>Step-by-step workflow</li>
+                                <li>Component interactions</li>
+                                <li>Decision making process</li>
+                            </ul>
+                        </div>
+                        <div class="component-card">
+                            <h4><span class="emoji">❓</span> Troubleshooting</h4>
+                            <p>"What if a component fails?"</p>
+                            <ul>
+                                <li>etcd backup importance</li>
+                                <li>High availability setup</li>
+                                <li>Component dependencies</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+<pre># Essential kubectl commands for interviews
+kubectl get nodes                    # Check cluster nodes
+kubectl get pods --all-namespaces   # All pods in cluster  
+kubectl describe node NODE_NAME     # Node details
+kubectl get componentstatuses       # Control plane health
+kubectl cluster-info                # Cluster information
+kubectl version                     # Kubernetes version</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assignment Section -->
+            <div class="assignment-section">
+                <h2><span class="emoji">📝</span> Your Learning Assignment</h2>
+                <p>Complete this assignment to demonstrate your Kubernetes architecture knowledge:</p>
+                
+                <div class="assignment-steps">
+                    <div class="assignment-step">
+                        <h4><span class="emoji">1️⃣</span> Write Detailed Notes</h4>
+                        <p>Create comprehensive notes based on this video covering:</p>
+                        <ul>
+                            <li>All Control Plane components</li>
+                            <li>All Data Plane components</li>
+                            <li>Pod creation workflow</li>
+                            <li>Component interactions</li>
+                        </ul>
+                    </div>
+                    <div class="assignment-step">
+                        <h4><span class="emoji">2️⃣</span> Create Architecture Diagram</h4>
+                        <p>Draw a detailed diagram showing:</p>
+                        <ul>
+                            <li>Master and Worker nodes</li>
+                            <li>All components clearly labeled</li>
+                            <li>Pod creation flow with arrows</li>
+                            <li>Component relationships</li>
+                        </ul>
+                    </div>
+                    <div class="assignment-step">
+                        <h4><span class="emoji">3️⃣</span> LinkedIn Post</h4>
+                        <p>Share your learning publicly:</p>
+                        <ul>
+                            <li>Post your notes summary</li>
+                            <li>Include your diagram</li>
+                            <li>Explain key concepts</li>
+                            <li>Use relevant hashtags</li>
+                        </ul>
+                    </div>
+                    <div class="assignment-step">
+                        <h4><span class="emoji">4️⃣</span> GitHub Documentation</h4>
+                        <p>Create professional documentation:</p>
+                        <ul>
+                            <li>Upload notes to GitHub repo</li>
+                            <li>Include architecture diagrams</li>
+                            <li>Add code examples</li>
+                            <li>Share GitHub URL on LinkedIn</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <strong><span class="emoji">🎯</span> Career Benefit:</strong> This assignment demonstrates to interviewers that you understand Kubernetes architecture deeply and can explain complex concepts clearly!
+                </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🚀</span> What's Next: Kubernetes Pods
+                </div>
+                <div class="section-content">
+                    <div class="info-box">
+                        <h4><span class="emoji">📅</span> Day 32 Preview</h4>
+                        <p>In the next video, we'll dive deep into <strong>Kubernetes Pods</strong>:</p>
+                        <ul>
+                            <li>What are Pods exactly?</li>
+                            <li>Pod vs Container differences</li>
+                            <li>Multi-container Pods</li>
+                            <li>Pod lifecycle management</li>
+                            <li>Hands-on Pod creation</li>
+                        </ul>
+                    </div>
+
+                    <div class="success-box">
+                        <h4><span class="emoji">🎉</span> Congratulations!</h4>
+                        <p>You now understand the complete Kubernetes architecture! You know:</p>
+                        <ul>
+                            <li>✅ Why each component exists</li>
+                            <li>✅ How components work together</li>
+                            <li>✅ The difference between Control Plane and Data Plane</li>
+                            <li>✅ Pod creation workflow</li>
+                            <li>✅ Interview-ready explanations</li>
+                        </ul>
+                    </div>
+
+                    <div class="highlight-box">
+                        <strong><span class="emoji">💪</span> Keep Learning:</strong> The foundation is set! Now we'll build practical skills on top of this architectural understanding.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

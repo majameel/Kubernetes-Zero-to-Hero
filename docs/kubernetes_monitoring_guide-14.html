@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Monitoring: Prometheus & Grafana - Day 42</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="15" height="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><rect x="30" y="30" width="15" height="30" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><rect x="50" y="15" width="15" height="45" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><rect x="70" y="25" width="15" height="35" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-content {
+            padding: 2.5rem;
+            background: #f8f9fa;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            font-weight: 500;
+            text-align: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .prometheus-section {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .grafana-section {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .architecture-diagram {
+            background: white;
+            border: 3px solid #3498db;
+            border-radius: 15px;
+            padding: 3rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .monitoring-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .flow-component {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .prometheus-component {
+            border-color: #e74c3c;
+            background: #ffebee;
+        }
+
+        .grafana-component {
+            border-color: #f39c12;
+            background: #fff8e1;
+        }
+
+        .kubernetes-component {
+            border-color: #27ae60;
+            background: #e8f5e8;
+        }
+
+        .step-sequence {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .step-number {
+            background: #3498db;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .command-output {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid #27ae60;
+        }
+
+        .demo-section {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .demo-output {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .installation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .install-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            border-top: 4px solid #3498db;
+        }
+
+        .install-card.prometheus {
+            border-top-color: #e74c3c;
+        }
+
+        .install-card.grafana {
+            border-top-color: #f39c12;
+        }
+
+        .install-card h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .workflow-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .workflow-step {
+            background: #3498db;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 50px;
+            min-width: 120px;
+            text-align: center;
+            font-weight: 600;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .workflow-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.8rem;
+            color: #2c3e50;
+        }
+
+        .dashboard-demo {
+            background: #fff3cd;
+            border: 2px solid #f39c12;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.3);
+        }
+
+        .url-demo {
+            background: #e8f5e8;
+            border: 2px solid #27ae60;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .config-section {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .troubleshooting-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .troubleshooting-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            border-top: 4px solid #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .monitoring-flow, .installation-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .workflow-diagram {
+                flex-direction: column;
+            }
+            
+            .workflow-step:not(:last-child)::after {
+                content: '↓';
+                right: 50%;
+                top: 100%;
+                transform: translateX(50%);
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .emoji {
+            font-size: 1.2em;
+        }
+
+        .github-callout {
+            background: linear-gradient(135deg, #6c5ce7 0%, #5f3dc4 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="emoji">📊</span> Kubernetes Monitoring</h1>
+            <p>Day 42 - Complete DevOps Course</p>
+            <p>Prometheus & Grafana Live Demo</p>
+        </div>
+
+        <div class="content">
+            <!-- Introduction -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🎯</span> Course Overview & GitHub Repository
+                </div>
+                <div class="section-content">
+                    <div class="github-callout">
+                        <h3><span class="emoji">🌟</span> Enhanced GitHub Repository</h3>
+                        <p>This class includes a practical demo with all installation steps and commands available in a <strong>GitHub repository</strong>. The repository is designed to be enhanced with:</p>
+                        <ul>
+                            <li>Advanced Kubernetes monitoring techniques</li>
+                            <li>Writing custom metric servers</li>
+                            <li>Production-ready configurations</li>
+                        </ul>
+                        <p><strong>⭐ Star the repository to follow future advancements!</strong></p>
+                    </div>
+
+                    <h3><span class="emoji">📋</span> Today's Learning Objectives</h3>
+                    <div class="workflow-diagram">
+                        <div class="workflow-step">Understanding WHY</div>
+                        <div class="workflow-step">Installation Process</div>
+                        <div class="workflow-step">Monitor MiniKube</div>
+                        <div class="workflow-step">Grafana Dashboard</div>
+                    </div>
+
+                    <div class="monitoring-flow">
+                        <div class="flow-component kubernetes-component">
+                            <h4><span class="emoji">🤔</span> Why Monitoring?</h4>
+                            <p>Understanding the need for cluster monitoring</p>
+                        </div>
+                        <div class="flow-component prometheus-component">
+                            <h4><span class="emoji">🔍</span> What is Prometheus?</h4>
+                            <p>Open-source monitoring platform</p>
+                        </div>
+                        <div class="flow-component grafana-component">
+                            <h4><span class="emoji">📈</span> What is Grafana?</h4>
+                            <p>Data visualization and dashboards</p>
+                        </div>
+                        <div class="flow-component kubernetes-component">
+                            <h4><span class="emoji">⚙️</span> Installation & Setup</h4>
+                            <p>Complete demo with MiniKube</p>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h4><span class="emoji">✅</span> Prerequisites</h4>
+                        <p><strong>Only requirement:</strong> A Kubernetes cluster</p>
+                        <ul>
+                            <li><strong>Production:</strong> AWS EKS, Azure AKS, Google GKE</li>
+                            <li><strong>Development:</strong> MiniKube, k3s, k3d, kind</li>
+                        </ul>
+                        <p><strong>Demo Environment:</strong> We'll use MiniKube for this demonstration</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Why Monitoring -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🚨</span> Why Kubernetes Monitoring is Critical
+                </div>
+                <div class="section-content">
+                    <div class="highlight-box">
+                        <strong>Reality Check:</strong> As your Kubernetes infrastructure grows, monitoring becomes <strong>essential</strong> for maintaining operational excellence.
+                    </div>
+
+                    <h3><span class="emoji">📈</span> Scaling Challenges</h3>
+                    <div class="monitoring-flow">
+                        <div class="flow-component kubernetes-component">
+                            <h4><span class="emoji">🏢</span> Single Cluster</h4>
+                            <p>One DevOps engineer can manually monitor</p>
+                            <p>Manageable with basic tools</p>
+                        </div>
+                        <div class="flow-component prometheus-component">
+                            <h4><span class="emoji">🔄</span> Multiple Environments</h4>
+                            <p>Dev + Staging + Production</p>
+                            <p>Manual monitoring becomes impossible</p>
+                        </div>
+                        <div class="flow-component grafana-component">
+                            <h4><span class="emoji">👥</span> Multiple Teams</h4>
+                            <p>Different teams using same cluster</p>
+                            <p>Need isolation and visibility</p>
+                        </div>
+                        <div class="flow-component kubernetes-component">
+                            <h4><span class="emoji">⚡</span> Real-time Issues</h4>
+                            <p>Deployments not receiving requests</p>
+                            <p>Services becoming inaccessible</p>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4><span class="emoji">🚨</span> Common Production Scenarios</h4>
+                        <p>When teams report issues like:</p>
+                        <ul>
+                            <li><strong>"Our deployment isn't receiving any requests"</strong></li>
+                            <li><strong>"Services are intermittently inaccessible"</strong></li>
+                            <li><strong>"Pods keep crashing but we don't know why"</strong></li>
+                            <li><strong>"Resource usage is high but we can't identify the cause"</strong></li>
+                        </ul>
+                        <p><strong>Solution:</strong> Comprehensive monitoring helps DevOps engineers quickly identify and resolve issues</p>
+                    </div>
+
+                    <div class="success-box">
+                        <h4><span class="emoji">💡</span> Monitoring Benefits</h4>
+                        <ul>
+                            <li><strong>Proactive Issue Detection:</strong> Identify problems before they impact users</li>
+                            <li><strong>Resource Optimization:</strong> Track resource usage and optimize costs</li>
+                            <li><strong>Performance Insights:</strong> Understand application behavior and bottlenecks</li>
+                            <li><strong>Capacity Planning:</strong> Plan infrastructure scaling based on trends</li>
+                            <li><strong>Troubleshooting:</strong> Quick root cause analysis for incidents</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prometheus Deep Dive -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🔍</span> Understanding Prometheus
+                </div>
+                <div class="section-content">
+                    <div class="prometheus-section">
+                        <h3><span class="emoji">🎵</span> What is Prometheus?</h3>
+                        <p>Prometheus was initially developed by <strong>SoundCloud</strong> and is now a complete <strong>open-source monitoring platform</strong> that anyone can use on their clusters, including enterprise environments.</p>
+                        
+                        <div class="demo-output">
+                            <h4>Key Characteristics:</h4>
+                            <ul>
+                                <li><strong>Open Source:</strong> Free to use in any environment</li>
+                                <li><strong>Time Series Database:</strong> Stores metrics with timestamps</li>
+                                <li><strong>Pull-based Model:</strong> Scrapes metrics from targets</li>
+                                <li><strong>PromQL:</strong> Powerful query language</li>
+                                <li><strong>Alerting:</strong> Built-in alert manager integration</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🏗️</span> Prometheus Architecture</h3>
+                    <div class="architecture-diagram">
+                        <h4>Complete Monitoring Architecture</h4>
+                        <div class="monitoring-flow">
+                            <div class="flow-component kubernetes-component">
+                                <h4><span class="emoji">☸️</span> Kubernetes Cluster</h4>
+                                <ul>
+                                    <li>API Server</li>
+                                    <li>Worker Nodes</li>
+                                    <li>Applications</li>
+                                </ul>
+                            </div>
+                            <div class="flow-component prometheus-component">
+                                <h4><span class="emoji">🔍</span> Prometheus Server</h4>
+                                <ul>
+                                    <li>HTTP Server</li>
+                                    <li>Data Collector</li>
+                                    <li>Time Series DB</li>
+                                </ul>
+                            </div>
+                            <div class="flow-component grafana-component">
+                                <h4><span class="emoji">📊</span> Storage & Alerts</h4>
+                                <ul>
+                                    <li>Disk Storage</li>
+                                    <li>Alert Manager</li>
+                                    <li>Notifications</li>
+                                </ul>
+                            </div>
+                            <div class="flow-component kubernetes-component">
+                                <h4><span class="emoji">🖥️</span> User Interface</h4>
+                                <ul>
+                                    <li>Prometheus UI</li>
+                                    <li>PromQL Queries</li>
+                                    <li>API Access</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🔄</span> How Prometheus Works</h3>
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Metric Collection</h4>
+                                <p>Prometheus server scrapes metrics from various endpoints</p>
+                                <div class="code-block">
+<pre># Default Kubernetes API Server metrics endpoint
+http://api-server:6443/metrics
+
+# Applications expose metrics on /metrics endpoint
+http://my-app:8080/metrics</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Time Series Storage</h4>
+                                <p>Collected metrics stored with timestamps in Time Series Database</p>
+                                <div class="code-block">
+<pre># Example metric data structure
+http_requests_total{method="GET", handler="/api"} 1027 @1609459200
+cpu_usage_percent{instance="node-1"} 75.5 @1609459260</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Alerting System</h4>
+                                <p>Alert Manager sends notifications based on configured rules</p>
+                                <div class="code-block">
+<pre># Alert channels supported
+- Slack notifications
+- Email alerts  
+- Google Meet/Teams
+- PagerDuty
+- Custom webhooks</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h4>Query Interface</h4>
+                                <p>Users can query metrics using PromQL through UI or API</p>
+                                <div class="code-block">
+<pre># Example PromQL queries
+rate(http_requests_total[5m])              # Request rate over 5 minutes
+sum(cpu_usage) by (instance)               # CPU usage per instance
+increase(errors_total[1h])                 # Error count increase in 1 hour</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div name="info-box">
+                        <h4><span class="emoji">📊</span> Default Kubernetes Metrics</h4>
+                        <p>Kubernetes API server exposes built-in metrics out of the box:</p>
+                        <ul>
+                            <li>API server performance and health</li>
+                            <li>Node resource usage</li>
+                            <li>etcd performance metrics</li>
+                            <li>Controller manager statistics</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grafana Integration -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">📈</span> Why Grafana with Prometheus?
+                </div>
+                <div class="section-content">
+                    <div class="grafana-section">
+                        <h3><span class="emoji">🤔</span> If you have Prometheus, why do you need Grafana?</h3>
+                        <p>Prometheus can provide extensive information using PromQL queries. However, for <strong>better visualization</strong>, especially when dealing with large amounts of data, Grafana is essential.</p>
+                        
+                        <div class="demo-output">
+                            <h4>Grafana Advantages:</h4>
+                            <ul>
+                                <li><strong>Visual Dashboards:</strong> Charts, graphs, and gauges</li>
+                                <li><strong>Multiple Data Sources:</strong> Not limited to Prometheus</li>
+                                <li><strong>Easy Interpretation:</strong> Visual data vs raw JSON</li>
+                                <li><strong>Team Sharing:</strong> Collaborative dashboards</li>
+                                <li><strong>Alerting:</strong> Visual alert management</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">⚖️</span> Prometheus vs Grafana Comparison</h3>
+                    <div class="monitoring-flow">
+                        <div class="flow-component prometheus-component">
+                            <h4><span class="emoji">🔍</span> Prometheus UI</h4>
+                            <h5>Raw Query Results:</h5>
+                            <div class="code-block">
+<pre># PromQL query result
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {"instance": "node-1"},
+        "value": [1609459200, "75.5"]
+      }
+    ]
+  }
+}</pre>
+                            </div>
+                            <p><strong>Good for:</strong> Ad-hoc queries, debugging</p>
+                        </div>
+                        <div class="flow-component grafana-component">
+                            <h4><span class="emoji">📊</span> Grafana Dashboard</h4>
+                            <h5>Visual Representation:</h5>
+                            <div class="url-demo">
+📈 Beautiful line charts showing CPU trends<br>
+📊 Bar graphs for memory usage<br>
+🟢 Status indicators for service health<br>
+⚠️ Alert panels for critical issues<br>
+🎯 Custom panels for business metrics
+                            </div>
+                            <p><strong>Good for:</strong> Monitoring, reporting, sharing</p>
+                        </div>
+                    </div>
+
+                    <div class="success-box">
+                        <h4><span class="emoji">🔗</span> Perfect Partnership</h4>
+                        <p>Grafana uses Prometheus as a data source, combining:</p>
+                        <ul>
+                            <li><strong>Prometheus:</strong> Powerful data collection and storage</li>
+                            <li><strong>Grafana:</strong> Intuitive visualization and sharing</li>
+                            <li><strong>Result:</strong> Complete monitoring solution</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Demo Setup -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🚀</span> Live Demo: MiniKube Cluster Setup
+                </div>
+                <div class="section-content">
+                    <div class="demo-section">
+                        <h3><span class="emoji">🛠️</span> Demo Environment Setup</h3>
+                        <p>We'll create a Kubernetes cluster from scratch using <strong>MiniKube</strong>. While <code>kind</code> is lightweight for local development, MiniKube is preferred for demos requiring more memory/CPU resources.</p>
+                    </div>
+
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Start MiniKube with Optimal Configuration</h4>
+                                <div class="warning-box">
+                                    <h5><span class="emoji">💡</span> Driver Selection</h5>
+                                    <p>By default, MiniKube uses Docker driver on Windows/Mac, but for easier networking, using a virtualization driver like <code>hyperkit</code> on Mac (or VirtualBox) is recommended.</p>
+                                </div>
+                                <div class="code-block">
+<pre># Start MiniKube with recommended configuration
+minikube start --memory 4GB --driver=hyperkit
+
+# Alternative drivers:
+# minikube start --memory 4GB --driver=virtualbox    # Cross-platform
+# minikube start --memory 4GB --driver=docker        # Default option</pre>
+                                </div>
+                                <div class="command-output">
+<pre>😄  minikube v1.30.1 on Darwin 13.4
+✨  Using the hyperkit driver based on user configuration
+👍  Starting control plane node minikube in cluster minikube
+🔥  Creating hyperkit VM (CPUs=2, Memory=4096MB, Disk=20000MB) ...
+🐳  Preparing Kubernetes v1.27.1 on Docker 23.0.2 ...
+🔎  Verifying Kubernetes components...
+🌟  Enabled addons: storage-provisioner, default-storageclass
+🏄  Done! kubectl is now configured to use "minikube" cluster</pre>
+                                </div>
+                                <p><strong>⏱️ Expected time:</strong> About 1 minute</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Verify Default Kubernetes Components</h4>
+                                <div class="code-block">
+<pre># Check all pods across all namespaces
+kubectl get pods -A</pre>
+                                </div>
+                                <div class="command-output">
+<pre>NAMESPACE     NAME                               READY   STATUS    RESTARTS   AGE
+kube-system   coredns-5d78c9869d-abc123          1/1     Running   0          2m
+kube-system   etcd-minikube                      1/1     Running   0          2m
+kube-system   kube-apiserver-minikube            1/1     Running   0          2m
+kube-system   kube-controller-manager-minikube   1/1     Running   0          2m
+kube-system   kube-proxy-xyz789                  1/1     Running   0          2m
+kube-system   storage-provisioner                1/1     Running   0          2m</pre>
+                                </div>
+                                <div class="success-box">
+                                    <h5><span class="emoji">✅</span> Default Components Running</h5>
+                                    <ul>
+                                        <li><strong>API Server:</strong> Kubernetes control plane entry point</li>
+                                        <li><strong>Controller Manager:</strong> Manages Kubernetes controllers</li>
+                                        <li><strong>CoreDNS:</strong> Cluster DNS service</li>
+                                        <li><strong>etcd:</strong> Key-value store for cluster data</li>
+                                        <li><strong>kube-proxy:</strong> Network proxy on each node</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prometheus Installation -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🔍</span> Installing Prometheus with Helm
+                </div>
+                <div class="section-content">
+                    <div class="info-box">
+                        <h4><span class="emoji">⚙️</span> Installation Method: Helm</h4>
+                        <p>We'll use <strong>Helm</strong> for installation. While Operators offer advanced capabilities like automatic upgrades and lifecycle management, Helm provides a straightforward installation process.</p>
+                        <p><strong>Commands available in GitHub repository!</strong></p>
+                    </div>
+
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Add Prometheus Helm Repository</h4>
+                                <div class="code-block">
+<pre># Add the official Prometheus community Helm repository
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts</pre>
+                                </div>
+                                <div class="command-output">
+<pre>"prometheus-community" has been added to your repositories</pre>
+                                </div>
+                                <p><strong>Best Practice:</strong> Always add the repository first to ensure proper chart discovery</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Update Helm Repository</h4>
+                                <div class="code-block">
+<pre># Update repository cache to get latest chart versions
+helm repo update</pre>
+                                </div>
+                                <div class="command-output">
+<pre>Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "prometheus-community" chart repository
+Update Complete. ⎈Happy Helming!⎈</pre>
+                                </div>
+                                <p><strong>Why Update:</strong> Ensures you install the latest stable version with security patches</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Install Prometheus</h4>
+                                <div class="code-block">
+<pre># Install Prometheus with default configuration
+helm install prometheus prometheus-community/prometheus</pre>
+                                </div>
+                                <div class="command-output">
+<pre>NAME: prometheus
+LAST DEPLOYED: Mon Oct 23 14:30:15 2023
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+The Prometheus server can be accessed via port 80 on the following DNS name from within your cluster:
+prometheus-server.default.svc.cluster.local</pre>
+                                </div>
+                                <p><strong>What gets installed:</strong> Prometheus controller, config maps, and related services</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h4>Verify Prometheus Installation</h4>
+                                <div class="code-block">
+<pre># Check if Prometheus pods are running
+kubectl get pods</pre>
+                                </div>
+                                <div class="command-output">
+<pre>NAME                                             READY   STATUS    RESTARTS   AGE
+prometheus-alertmanager-0                        1/1     Running   0          2m
+prometheus-kube-state-metrics-123abc456d-xyz789  1/1     Running   0          2m
+prometheus-node-exporter-abc123                 1/1     Running   0          2m
+prometheus-pushgateway-456def789-123abc          1/1     Running   0          2m
+prometheus-server-789ghi012-456def               1/1     Running   0          2m</pre>
+                                </div>
+                                <div class="success-box">
+                                    <h5><span class="emoji">🎉</span> Prometheus Components Running</h5>
+                                    <ul>
+                                        <li><strong>prometheus-server:</strong> Main Prometheus server</li>
+                                        <li><strong>prometheus-kube-state-metrics:</strong> Kubernetes resource metrics</li>
+                                        <li><strong>prometheus-alertmanager:</strong> Alert management</li>
+                                        <li><strong>prometheus-node-exporter:</strong> Node-level metrics</li>
+                                    </ul>
+                                </div>
+                                <p><strong>⏱️ Note:</strong> It might take a minute for all containers to be created and running</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kube State Metrics -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">📊</span> Understanding Kube State Metrics
+                </div>
+                <div class="section-content">
+                    <div class="warning-box">
+                        <h4><span class="emoji">🤔</span> Why Do We Need Kube State Metrics?</h4>
+                        <p>The Kubernetes API server exposes default metrics about the cluster itself (API server status, default installations). However, you need <strong>additional information</strong> about resources like deployments, pods, and services.</p>
+                    </div>
+
+                    <div class="monitoring-flow">
+                        <div class="flow-component kubernetes-component">
+                            <h4><span class="emoji">⚙️</span> API Server Metrics</h4>
+                            <h5>Default Information:</h5>
+                            <ul>
+                                <li>API server performance</li>
+                                <li>Request latency</li>
+                                <li>Error rates</li>
+                                <li>Authentication stats</li>
+                            </ul>
+                        </div>
+                        <div class="flow-component prometheus-component">
+                            <h4><span class="emoji">📈</span> Kube State Metrics</h4>
+                            <h5>Extended Information:</h5>
+                            <ul>
+                                <li>Deployment replica counts</li>
+                                <li>Pod status and phases</li>
+                                <li>Service endpoint counts</li>
+                                <li>Resource requests/limits</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h4><span class="emoji">🛠️</span> Kube State Metrics Deep Dive</h4>
+                        <p>The Kubernetes community created the <strong>kube-state-metrics</strong> controller to expose additional cluster resource information:</p>
+                        <ul>
+                            <li>Creates a service with <code>/metrics</code> endpoint</li>
+                            <li>Provides detailed information about cluster resources</li>
+                            <li>Goes beyond what API server provides by default</li>
+                            <li>Automatically installed with Helm Prometheus chart</li>
+                        </ul>
+                    </div>
+
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Check Prometheus Services</h4>
+                                <div class="code-block">
+<pre># List all services to see Prometheus components
+kubectl get svc</pre>
+                                </div>
+                                <div class="command-output">
+<pre>NAME                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+kubernetes                      ClusterIP   10.96.0.1        &lt;none&gt;        443/TCP    10m
+prometheus-alertmanager         ClusterIP   10.100.200.50    &lt;none&gt;        9093/TCP   5m
+prometheus-kube-state-metrics   ClusterIP   10.100.200.100   &lt;none&gt;        8080/TCP   5m
+prometheus-node-exporter        ClusterIP   10.100.200.75    &lt;none&gt;        9100/TCP   5m
+prometheus-pushgateway          ClusterIP   10.100.200.125   &lt;none&gt;        9091/TCP   5m
+prometheus-server               ClusterIP   10.100.200.150   &lt;none&gt;        80/TCP     5m</pre>
+                                </div>
+                                <p><strong>Note:</strong> All services running on <strong>ClusterIP</strong> mode by default (internal access only)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="success-box">
+                        <h4><span class="emoji">🔄</span> Installation Status</h4>
+                        <p>At this point, we have:</p>
+                        <ul>
+                            <li>✅ <strong>Prometheus Server:</strong> Collecting and storing metrics</li>
+                            <li>✅ <strong>Kube State Metrics:</strong> Exposing Kubernetes resource information</li>
+                            <li>✅ <strong>Alert Manager:</strong> Ready for alert configuration</li>
+                            <li>⏭️ <strong>Next:</strong> Access Prometheus UI and install Grafana</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accessing Prometheus UI -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🌐</span> Accessing Prometheus UI
+                </div>
+                <div class="section-content">
+                    <div class="info-box">
+                        <h4><span class="emoji">🔐</span> Exposing ClusterIP Services</h4>
+                        <p>To access Prometheus UI from outside the cluster, we need to expose the <code>prometheus-server</code> ClusterIP service. For this demo using MiniKube, we'll create a NodePort service.</p>
+                    </div>
+
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Expose Prometheus Server as NodePort</h4>
+                                <div class="code-block">
+<pre># Create NodePort service for external access
+kubectl expose service prometheus-server --type=NodePort --name=prometheus-server-ext</pre>
+                                </div>
+                                <div class="command-output">
+<pre>service/prometheus-server-ext exposed</pre>
+                                </div>
+                                <p>This creates a new service entry named <code>prometheus-server-ext</code></p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Verify NodePort Service Creation</h4>
+                                <div class="code-block">
+<pre># Check services again to see the new NodePort
+kubectl get svc</pre>
+                                </div>
+                                <div class="command-output">
+<pre>NAME                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+prometheus-server               ClusterIP   10.100.200.150   &lt;none&gt;        80/TCP         8m
+prometheus-server-ext           NodePort    10.100.200.151   &lt;none&gt;        80:31110/TCP   1m</pre>
+                                </div>
+                                <p><strong>NodePort assigned:</strong> 31110 (automatically assigned random port)</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Get MiniKube IP Address</h4>
+                                <div class="code-block">
+<pre># Get the MiniKube cluster IP
+minikube ip</pre>
+                                </div>
+                                <div class="command-output">
+<pre>192.168.64.15</pre>
+                                </div>
+                                <p>This IP will be used to access services from your browser</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h4>Access Prometheus UI</h4>
+                                <div class="url-demo">
+<strong>Prometheus UI URL:</strong><br>
+http://&lt;MiniKube-IP&gt;:&lt;Prometheus-NodePort&gt;<br><br>
+<strong>Example:</strong><br>
+http://192.168.64.15:31110
+                                </div>
+                                <div class="success-box">
+                                    <h5><span class="emoji">🎉</span> Success!</h5>
+                                    <p>You should now see the Prometheus UI in your browser. The interface allows you to:</p>
+                                    <ul>
+                                        <li>Execute PromQL queries</li>
+                                        <li>Browse available metrics</li>
+                                        <li>View target status</li>
+                                        <li>Check configuration</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🔍</span> Exploring Prometheus UI</h3>
+                    <div class="dashboard-demo">
+                        <h4>Available Features in Prometheus UI:</h4>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <h4><span class="emoji">📝</span> PromQL Queries</h4>
+                                <p>Execute custom queries to retrieve specific metrics</p>
+                            </div>
+                            <div class="metric-card">
+                                <h4><span class="emoji">🎯</span> Targets</h4>
+                                <p>View all monitored endpoints and their status</p>
+                            </div>
+                            <div class="metric-card">
+                                <h4><span class="emoji">⚙️</span> Configuration</h4>
+                                <p>Check current Prometheus configuration</p>
+                            </div>
+                            <div class="metric-card">
+                                <h4><span class="emoji">🚨</span> Alerts</h4>
+                                <p>View active alerts and rules</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4><span class="emoji">⚠️</span> Default Configuration Scope</h4>
+                        <p>By default, Prometheus is configured to collect:</p>
+                        <ul>
+                            <li>✅ <strong>Kubernetes API server metrics</strong></li>
+                            <li>✅ <strong>Basic cluster information</strong></li>
+                            <li>❌ <strong>Custom application metrics</strong> (requires additional configuration)</li>
+                        </ul>
+                        <p><strong>For custom app metrics:</strong> Developers need to expose <code>/metrics</code> endpoints using Prometheus client libraries</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grafana Installation -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">📊</span> Installing Grafana
+                </div>
+                <div class="section-content">
+                    <div class="grafana-section">
+                        <h3><span class="emoji">🚀</span> Setting up Grafana for Visualization</h3>
+                        <p>Now let's install Grafana to create beautiful dashboards using the metrics collected by Prometheus. All commands are available in the GitHub repository's grafana folder.</p>
+                    </div>
+
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Add Grafana Helm Repository</h4>
+                                <div class="code-block">
+<pre># Add the official Grafana Helm repository
+helm repo add grafana https://grafana.github.io/helm-charts</pre>
+                                </div>
+                                <div class="command-output">
+<pre>"grafana" has been added to your repositories</pre>
+                                </div>
+                                <p><strong>Note:</strong> Repository might already exist, but adding it ensures proper chart access</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Update Helm Repository</h4>
+                                <div class="code-block">
+<pre># Update to get latest Grafana chart version
+helm repo update</pre>
+                                </div>
+                                <div class="command-output">
+<pre>Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "grafana" chart repository
+Update Complete. ⎈Happy Helming!⎈</pre>
+                                </div>
+                                <p><strong>Best Practice:</strong> Always update before installing</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Install Grafana</h4>
+                                <div class="code-block">
+<pre># Install Grafana on MiniKube cluster
+helm install grafana grafana/grafana</pre>
+                                </div>
+                                <div class="command-output">
+<pre>NAME: grafana
+LAST DEPLOYED: Mon Oct 23 15:15:30 2023
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get your 'admin' user password by running:
+   kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo</pre>
+                                </div>
+                                <p>Grafana is now installed on your MiniKube cluster!</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h4>🔑 Get Grafana Admin Password (VERY IMPORTANT!)</h4>
+                                <div class="warning-box">
+                                    <h5><span class="emoji">⚠️</span> Critical Step</h5>
+                                    <p>It's <strong>very important</strong> to get the password immediately after installation. The installation output provides the exact command.</p>
+                                </div>
+                                <div class="code-block">
+<pre># Retrieve Grafana admin password
+kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo</pre>
+                                </div>
+                                <div class="command-output">
+<pre>pK8Q7mCrDvJgRqF9</pre>
+                                </div>
+                                <p><strong>Save this password!</strong> You'll need it to log into Grafana</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accessing Grafana -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🌐</span> Accessing Grafana UI
+                </div>
+                <div class="section-content">
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Expose Grafana Service</h4>
+                                <p>Similar to Prometheus, the default Grafana service is ClusterIP. Expose it as NodePort for external access:</p>
+                                <div class="code-block">
+<pre># Create NodePort service for Grafana
+kubectl expose service grafana --type=NodePort --name=grafana-ext</pre>
+                                </div>
+                                <div class="command-output">
+<pre>service/grafana-ext exposed</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Check Grafana NodePort</h4>
+                                <div class="code-block">
+<pre># View services to see Grafana NodePort
+kubectl get svc</pre>
+                                </div>
+                                <div class="command-output">
+<pre>NAME                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+grafana                         ClusterIP   10.100.200.200   &lt;none&gt;        3000/TCP       3m
+grafana-ext                     NodePort    10.100.200.201   &lt;none&gt;        3000:31281/TCP 1m</pre>
+                                </div>
+                                <p><strong>Grafana NodePort:</strong> 31281 (randomly assigned)</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Access Grafana UI</h4>
+                                <div class="url-demo">
+<strong>Grafana UI URL:</strong><br>
+http://&lt;MiniKube-IP&gt;:&lt;Grafana-NodePort&gt;<br><br>
+<strong>Example:</strong><br>
+http://192.168.64.15:31281
+                                </div>
+                                <div class="success-box">
+                                    <h5><span class="emoji">🎉</span> Grafana Login</h5>
+                                    <p>You should see the Grafana login page:</p>
+                                    <ul>
+                                        <li><strong>Username:</strong> admin</li>
+                                        <li><strong>Password:</strong> (use the password retrieved earlier)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuring Grafana with Prometheus -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🔗</span> Connecting Grafana to Prometheus
+                </div>
+                <div class="section-content">
+                    <div class="info-box">
+                        <h4><span class="emoji">🎯</span> First Step After Login</h4>
+                        <p>Once logged into Grafana, the first step is to <strong>add Prometheus as a data source</strong>. This allows Grafana to retrieve and visualize metrics from Prometheus.</p>
+                    </div>
+
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Add Data Source</h4>
+                                <div class="workflow-diagram">
+                                    <div class="workflow-step">Login to Grafana</div>
+                                    <div class="workflow-step">Go to Data Sources</div>
+                                    <div class="workflow-step">Add First Data Source</div>
+                                    <div class="workflow-step">Select Prometheus</div>
+                                </div>
+                                <p>Navigate to <strong>Data sources</strong> → <strong>Add your first data source</strong> → Select <strong>Prometheus</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Configure Prometheus URL</h4>
+                                <p>Provide the URL of your Prometheus server. Since we exposed Prometheus via NodePort:</p>
+                                <div class="url-demo">
+<strong>Prometheus Data Source URL:</strong><br>
+http://&lt;MiniKube-IP&gt;:&lt;Prometheus-NodePort&gt;<br><br>
+<strong>Example:</strong><br>
+http://192.168.64.15:31110
+                                </div>
+                                <div class="code-block">
+<pre># URL Configuration in Grafana:
+# Field: URL
+# Value: http://192.168.64.15:31110
+# 
+# Leave other settings as default for basic setup</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Test Connection</h4>
+                                <div class="code-block">
+<pre># Click "Save & test" button in Grafana</pre>
+                                </div>
+                                <div class="command-output">
+<pre>✅ Data source is working</pre>
+                                </div>
+                                <div class="success-box">
+                                    <h5><span class="emoji">🎉</span> Connection Successful!</h5>
+                                    <p>The "Data source is working" message confirms that Grafana can successfully retrieve information from Prometheus.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Creating Dashboards -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">📊</span> Creating Kubernetes Monitoring Dashboard
+                </div>
+                <div class="section-content">
+                    <div class="dashboard-demo">
+                        <h3><span class="emoji">💡</span> Smart Approach: Import Pre-built Dashboards</h3>
+                        <p>Instead of creating dashboards from scratch (which involves writing complex PromQL queries), Grafana provides <strong>pre-built dashboards</strong> that can be imported. These are created by the community and available on grafana.com.</p>
+                    </div>
+
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Import Dashboard</h4>
+                                <div class="workflow-diagram">
+                                    <div class="workflow-step">Go to Dashboards</div>
+                                    <div class="workflow-step">Click Import</div>
+                                    <div class="workflow-step">Enter Template ID</div>
+                                    <div class="workflow-step">Load Dashboard</div>
+                                </div>
+                                <p>Navigate to <strong>Dashboards</strong> → <strong>Import</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Use Kubernetes Monitoring Template</h4>
+                                <div class="info-box">
+                                    <h5><span class="emoji">🏆</span> Recommended Template</h5>
+                                    <p>For Kubernetes monitoring using Prometheus, there's a popular community template available on grafana.com</p>
+                                </div>
+                                <div class="code-block">
+<pre># Standard Kubernetes Monitoring Dashboard Template ID
+Template ID: 3662
+
+# Alternative Template (mentioned but corrected)
+# Template ID: 3326 (initially mentioned but corrected to 3662)</pre>
+                                </div>
+                                <p>Enter ID <strong>3662</strong> and click <strong>Load</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Configure Dashboard</h4>
+                                <div class="code-block">
+<pre># Dashboard Configuration:
+# 1. Choose data source: Prometheus (select the one we configured)
+# 2. Click "Import"</pre>
+                                </div>
+                                <div class="success-box">
+                                    <h5><span class="emoji">🎨</span> Dashboard Created!</h5>
+                                    <p>A comprehensive dashboard is now created, retrieving information from your MiniKube cluster using <strong>predefined PromQL queries</strong>.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">📈</span> Dashboard Features</h3>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <h4><span class="emoji">⚙️</span> API Server Metrics</h4>
+                            <p>Request rates, latency, error rates</p>
+                        </div>
+                        <div class="metric-card">
+                            <h4><span class="emoji">🖥️</span> Node Information</h4>
+                            <p>CPU, memory, disk usage per node</p>
+                        </div>
+                        <div class="metric-card">
+                            <h4><span class="emoji">⏱️</span> Uptime Tracking</h4>
+                            <p>Cluster and component uptime statistics</p>
+                        </div>
+                        <div class="metric-card">
+                            <h4><span class="emoji">🔍</span> Query Insights</h4>
+                            <p>Hover over panels to see underlying PromQL queries</p>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4><span class="emoji">⚠️</span> Default Dashboard Scope</h4>
+                        <p>The default dashboard (ID 3662) provides metrics for <strong>native Kubernetes services</strong>:</p>
+                        <ul>
+                            <li>✅ API server performance</li>
+                            <li>✅ Node resource usage</li>
+                            <li>✅ etcd metrics</li>
+                            <li>✅ Basic cluster health</li>
+                            <li>❌ Deployment status (requires kube-state-metrics configuration)</li>
+                            <li>❌ Running replica counts</li>
+                            <li>❌ Service endpoint status</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kube State Metrics Configuration -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">📊</span> Advanced Metrics: Kube State Metrics Deep Dive
+                </div>
+                <div class="section-content">
+                    <div class="highlight-box">
+                        <strong>Next Level:</strong> To get deployment status, running replicas, and service information, we need to properly configure and access <strong>Kube State Metrics</strong>.
+                    </div>
+
+                    <h3><span class="emoji">🔍</span> Exploring Kube State Metrics Endpoint</h3>
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Check Kube State Metrics Service</h4>
+                                <div class="code-block">
+<pre># Find kube-state-metrics service details
+kubectl get svc | grep kube-state-metrics</pre>
+                                </div>
+                                <div class="command-output">
+<pre>prometheus-kube-state-metrics   ClusterIP   10.100.200.100   &lt;none&gt;        8080/TCP   15m</pre>
+                                </div>
+                                <p><strong>Important:</strong> Service running on ClusterIP with <strong>TargetPort 8080</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Expose Kube State Metrics</h4>
+                                <div class="code-block">
+<pre># Expose kube-state-metrics service for external access
+kubectl expose service prometheus-kube-state-metrics --type=NodePort --name=kube-state-metrics-ext --target-port=8080</pre>
+                                </div>
+                                <div class="command-output">
+<pre>service/kube-state-metrics-ext exposed</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Check NodePort Assignment</h4>
+                                <div class="code-block">
+<pre># Get the assigned NodePort
+kubectl get svc | grep kube-state-metrics-ext</pre>
+                                </div>
+                                <div class="command-output">
+<pre>kube-state-metrics-ext          NodePort    10.100.200.102   &lt;none&gt;        8080:30421/TCP 1m</pre>
+                                </div>
+                                <p><strong>NodePort assigned:</strong> 30421</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h4>Access Kube State Metrics Endpoint</h4>
+                                <div class="url-demo">
+<strong>Kube State Metrics URL:</strong><br>
+http://&lt;MiniKube-IP&gt;:&lt;KubeStateMetrics-NodePort&gt;<br><br>
+<strong>Example:</strong><br>
+http://192.168.64.15:30421<br><br>
+<strong>Metrics Endpoint:</strong><br>
+http://192.168.64.15:30421/metrics
+                                </div>
+                                <div class="success-box">
+                                    <h5><span class="emoji">📊</span> Rich Metrics Data</h5>
+                                    <p>Accessing <code>/metrics</code> endpoint shows <strong>extensive information</strong> about your Kubernetes cluster resources in metrics format (not JSON):</p>
+                                    <ul>
+                                        <li>Deployment replica counts</li>
+                                        <li>Pod status and phases</li>
+                                        <li>Service endpoint information</li>
+                                        <li>Resource requests and limits</li>
+                                        <li>Node capacity and allocation</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🔗</span> Integrating Kube State Metrics with Prometheus</h3>
+                    <div class="config-section">
+                        <h4><span class="emoji">⚙️</span> Updating Prometheus Configuration</h4>
+                        <p>To make this rich kube-state-metrics information available in Grafana, we need to update the <strong>Prometheus server's config map</strong> to scrape this endpoint.</p>
+                        
+                        <div class="demo-output">
+                            <h5>Configuration Steps:</h5>
+                            <ol>
+                                <li>Get Prometheus server config map name</li>
+                                <li>Edit the config map</li>
+                                <li>Add new scrape configuration for kube-state-metrics</li>
+                                <li>Restart Prometheus to apply changes</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="step-sequence">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Find Prometheus Config Map</h4>
+                                <div class="code-block">
+<pre># List config maps to find prometheus-server
+kubectl get cm</pre>
+                                </div>
+                                <div class="command-output">
+<pre>NAME                      DATA   AGE
+prometheus-server         5      20m</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Edit Prometheus Configuration</h4>
+                                <div class="code-block">
+<pre># Edit prometheus server config map
+kubectl edit cm prometheus-server</pre>
+                                </div>
+                                <p>Look for the <code>prometheus.yml</code> section and <code>scrape_configs</code></p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Add Kube State Metrics Scrape Config</h4>
+                                <div class="code-block">
+<pre># Add this job to scrape_configs section:
+- job_name: 'kube-state-metrics'
+  static_configs:
+  - targets: ['&lt;MiniKube-IP&gt;:30421']  # Use your NodePort
+
+# Example:
+- job_name: 'kube-state-metrics'
+  static_configs:
+  - targets: ['192.168.64.15:30421']</pre>
+                                </div>
+                                <p>Save and exit the editor</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Application Metrics -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🔧</span> Custom Application Metrics
+                </div>
+                <div class="section-content">
+                    <div class="info-box">
+                        <h4><span class="emoji">🎯</span> Beyond Kubernetes Metrics</h4>
+                        <p>For <strong>custom application metrics</strong> (health checks, business metrics, performance indicators), developers need to expose metrics endpoints using Prometheus client libraries.</p>
+                    </div>
+
+                    <h3><span class="emoji">👨‍💻</span> Developer Responsibilities</h3>
+                    <div class="monitoring-flow">
+                        <div class="flow-component kubernetes-component">
+                            <h4><span class="emoji">📱</span> Application Code</h4>
+                            <p>Implement metrics using Prometheus client libraries</p>
+                            <ul>
+                                <li>Go: prometheus/client_golang</li>
+                                <li>Java: micrometer</li>
+                                <li>Python: prometheus_client</li>
+                                <li>Node.js: prom-client</li>
+                            </ul>
+                        </div>
+                        <div class="flow-component prometheus-component">
+                            <h4><span class="emoji">🌐</span> Metrics Endpoint</h4>
+                            <p>Expose /metrics endpoint</p>
+                            <ul>
+                                <li>HTTP endpoint on port</li>
+                                <li>Prometheus format</li>
+                                <li>Counter, Gauge, Histogram</li>
+                                <li>Custom business metrics</li>
+                            </ul>
+                        </div>
+                        <div class="flow-component grafana-component">
+                            <h4><span class="emoji">⚙️</span> DevOps Configuration</h4>
+                            <p>Add to Prometheus scrape config</p>
+                            <ul>
+                                <li>Update config map</li>
+                                <li>Add job for app endpoint</li>
+                                <li>Configure discovery</li>
+                                <li>Set scrape interval</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">📝</span> Example: Custom App Metrics Configuration</h3>
+                    <div class="code-block">
+<pre># Example custom application scrape config
+- job_name: 'my-custom-app'
+  static_configs:
+  - targets: ['my-app-service:8080']  # App service endpoint
+  metrics_path: '/metrics'            # Metrics endpoint path
+  scrape_interval: 30s               # How often to scrape
+
+# For multiple applications
+- job_name: 'microservices'
+  static_configs:
+  - targets: 
+    - 'user-service:8080'
+    - 'order-service:8080'
+    - 'payment-service:8080'</pre>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4><span class="emoji">💡</span> DevOps Engineer Knowledge</h4>
+                        <p>While DevOps Engineers are <strong>not strictly required</strong> to write application metrics code, understanding the process is valuable for:</p>
+                        <ul>
+                            <li>Collaborating with development teams</li>
+                            <li>Troubleshooting metrics collection issues</li>
+                            <li>Designing comprehensive monitoring strategies</li>
+                            <li>Implementing infrastructure-level metrics</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary and Best Practices -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="emoji">🎯</span> Summary & Best Practices
+                </div>
+                <div class="section-content">
+                    <div class="success-box">
+                        <h4><span class="emoji">🏆</span> What You've Accomplished</h4>
+                        <ul>
+                            <li>✅ <strong>Understood WHY monitoring is critical</strong> for Kubernetes environments</li>
+                            <li>✅ <strong>Installed Prometheus</strong> for metrics collection and storage</li>
+                            <li>✅ <strong>Installed Grafana</strong> for data visualization</li>
+                            <li>✅ <strong>Connected systems</strong> and created monitoring dashboard</li>
+                            <li>✅ <strong>Explored kube-state-metrics</strong> for extended cluster information</li>
+                            <li>✅ <strong>Learned configuration</strong> for custom application metrics</li>
+                        </ul>
+                    </div>
+
+                    <h3><span class="emoji">🔄</span> Complete Monitoring Flow</h3>
+                    <div class="architecture-diagram">
+                        <div class="workflow-diagram">
+                            <div class="workflow-step">Data Collection</div>
+                            <div class="workflow-step">Prometheus Storage</div>
+                            <div class="workflow-step">Grafana Visualization</div>
+                            <div class="workflow-step">Alert Management</div>
+                        </div>
+                        
+                        <div class="monitoring-flow">
+                            <div class="flow-component kubernetes-component">
+                                <h4><span class="emoji">📊</span> Data Sources</h4>
+                                <ul>
+                                    <li>Kubernetes API Server</li>
+                                    <li>Kube State Metrics</li>
+                                    <li>Node Exporter</li>
+                                    <li>Custom Applications</li>
+                                </ul>
+                            </div>
+                            <div class="flow-component prometheus-component">
+                                <h4><span class="emoji">🔍</span> Prometheus</h4>
+                                <ul>
+                                    <li>Scrapes metrics endpoints</li>
+                                    <li>Stores in Time Series DB</li>
+                                    <li>Provides PromQL queries</li>
+                                    <li>Manages alerting rules</li>
+                                </ul>
+                            </div>
+                            <div class="flow-component grafana-component">
+                                <h4><span class="emoji">📈</span> Grafana</h4>
+                                <ul>
+                                    <li>Connects to Prometheus</li>
+                                    <li>Creates visual dashboards</li>
+                                    <li>Provides team collaboration</li>
+                                    <li>Supports multiple data sources</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">📚</span> Repository and Next Steps</h3>
+                    <div class="github-callout">
+                        <h4><span class="emoji">🌟</span> Continue Your Learning Journey</h4>
+                        <p>To replicate this setup, follow the detailed documentation in the <strong>GitHub repository</strong>. The repository includes:</p>
+                        <ul>
+                            <li>Complete installation commands</li>
+                            <li>Configuration examples</li>
+                            <li>Troubleshooting guides</li>
+                            <li>Future enhancements and advanced topics</li>
+                        </ul>
+                        <p><strong>Note:</strong> Kube State Metrics configuration details (exposing service and adding to Prometheus config) are covered in this video and will be added to written documentation.</p>
+                    </div>
+
+                    <h3><span class="emoji">🛠️</span> Production Considerations</h3>
+                    <div class="troubleshooting-grid">
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">🔒</span> Security</h4>
+                            <ul>
+                                <li>Use proper authentication</li>
+                                <li>Configure RBAC for Prometheus</li>
+                                <li>Secure Grafana with HTTPS</li>
+                                <li>Restrict access to monitoring endpoints</li>
+                            </ul>
+                        </div>
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">📈</span> Scalability</h4>
+                            <ul>
+                                <li>Configure persistent storage</li>
+                                <li>Set appropriate retention policies</li>
+                                <li>Use Prometheus federation</li>
+                                <li>Implement high availability</li>
+                            </ul>
+                        </div>
+                        <div class="troubleshooting-card">
+                            <h4><span class="emoji">🚨</span> Alerting</h4>
+                            <ul>
+                                <li>Configure AlertManager</li>
+                                <li>Set up notification channels</li>
+                                <li>Define alert rules</li>
+                                <li>Test alert workflows</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        <strong><span class="emoji">🎯</span> Mission Accomplished:</strong><br>
+                        You now have a complete monitoring solution with Prometheus collecting metrics and Grafana providing beautiful visualizations for your Kubernetes cluster!
+                    </div>
+
+                    <div class="info-box">
+                        <h4><span class="emoji">🔮</span> Future Enhancements</h4>
+                        <p>This monitoring setup can be extended with:</p>
+                        <ul>
+                            <li>Advanced Prometheus queries and custom metrics</li>
+                            <li>Custom Grafana dashboards for specific use cases</li>
+                            <li>Integration with external systems (Slack, PagerDuty)</li>
+                            <li>Log aggregation with ELK stack or Loki</li>
+                            <li>Distributed tracing with Jaeger</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Fundamentals - Complete Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .section-content {
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-weight: 500;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .diagram {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .problem-solution {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .problem {
+            background: #ffebee;
+            border-left: 4px solid #e74c3c;
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .solution {
+            background: #e8f5e8;
+            border-left: 4px solid #27ae60;
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .yaml-block {
+            background: #34495e;
+            color: #ecf0f1;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .flow-step {
+            background: #3498db;
+            color: white;
+            padding: 1rem;
+            border-radius: 50px;
+            min-width: 120px;
+            text-align: center;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .flow-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .architecture-diagram {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .node {
+            background: #3498db;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            position: relative;
+        }
+
+        .master-node {
+            background: #e74c3c;
+            grid-column: 1 / -1;
+            margin-bottom: 1rem;
+        }
+
+        .worker-node {
+            background: #27ae60;
+        }
+
+        .container-visual {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #ecf0f1;
+            border-radius: 8px;
+        }
+
+        .container-box {
+            background: #3498db;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        .container-box.problem {
+            background: #e74c3c;
+        }
+
+        .prerequisites {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .prerequisite-item {
+            background: white;
+            border: 2px solid #3498db;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-top: 4px solid #3498db;
+        }
+
+        .feature-card h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .scaling-demo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .scaling-before, .scaling-after {
+            text-align: center;
+        }
+
+        .scaling-arrow {
+            font-size: 2rem;
+            color: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .problem-solution {
+                grid-template-columns: 1fr;
+            }
+            
+            .flow-diagram {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .flow-step:not(:last-child)::after {
+                content: '↓';
+                right: 50%;
+                top: 100%;
+                transform: translateX(50%);
+            }
+            
+            .architecture-diagram {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚢 Kubernetes Fundamentals</h1>
+            <p>Day 30 - Complete DevOps Course</p>
+            <p>Master Container Orchestration Platform</p>
+        </div>
+
+        <div class="content">
+            <!-- Introduction Section -->
+            <div class="section">
+                <div class="section-header">
+                    🎯 Introduction: Why Kubernetes?
+                </div>
+                <div class="section-content">
+                    <div class="highlight-box">
+                        <strong>Key Truth:</strong> Kubernetes is EASY! 🚀<br>
+                        Kubernetes is the FUTURE of DevOps!
+                    </div>
+                    
+                    <p>Many people worry about Kubernetes complexity, but if you understand containers well, Kubernetes becomes much easier. The key insight is that while people focus heavily on CI/CD pipelines, <strong>Kubernetes is the key player</strong> in the market.</p>
+                    
+                    <div class="info-box">
+                        <h4>📊 Market Reality Check</h4>
+                        <p>Look at 20 DevOps job resumes - you'll find Kubernetes in almost every single one. Why? Because companies are actively moving towards microservices architecture, and Kubernetes is essential for managing these distributed systems.</p>
+                    </div>
+
+                    <div class="flow-diagram">
+                        <div class="flow-step">Monolithic Apps</div>
+                        <div class="flow-step">Microservices</div>
+                        <div class="flow-step">Containers</div>
+                        <div class="flow-step">Kubernetes</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prerequisites Section -->
+            <div class="section">
+                <div class="section-header">
+                    📚 Prerequisites: Foundation Knowledge
+                </div>
+                <div class="section-content">
+                    <div class="warning-box">
+                        <h4>⚠️ Essential Requirement</h4>
+                        <p>The ONLY prerequisite for learning Kubernetes is <strong>Docker</strong> (or general container knowledge).</p>
+                    </div>
+
+                    <div class="prerequisites">
+                        <div class="prerequisite-item">
+                            <h4>🐳 Container Fundamentals</h4>
+                            <p>What containers bring to the table</p>
+                        </div>
+                        <div class="prerequisite-item">
+                            <h4>🖥️ VM vs Container</h4>
+                            <p>Understanding the key differences</p>
+                        </div>
+                        <div class="prerequisite-item">
+                            <h4>🌐 Networking Isolation</h4>
+                            <p>Network namespaces & isolation</p>
+                        </div>
+                        <div class="prerequisite-item">
+                            <h4>🏗️ Namespace Isolation</h4>
+                            <p>Process and resource isolation</p>
+                        </div>
+                        <div class="prerequisite-item">
+                            <h4>⚡ Lightweight Nature</h4>
+                            <p>Why containers are efficient</p>
+                        </div>
+                        <div class="prerequisite-item">
+                            <h4>🔒 Security</h4>
+                            <p>Distroless images, multi-stage builds</p>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>📖 Recommended Preparation</h4>
+                        <p>If you haven't covered Day 24-29 of this course, it's highly recommended to watch those videos covering Docker fundamentals before proceeding.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Docker vs Kubernetes -->
+            <div class="section">
+                <div class="section-header">
+                    🤔 Docker vs Kubernetes: Understanding the Difference
+                </div>
+                <div class="section-content">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Docker</th>
+                                <th>Kubernetes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Definition</strong></td>
+                                <td>Container Platform</td>
+                                <td>Container Orchestration Platform</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Scope</strong></td>
+                                <td>Single Host</td>
+                                <td>Multi-Host Cluster</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Auto-healing</strong></td>
+                                <td>❌ Manual intervention required</td>
+                                <td>✅ Automatic container restart</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Auto-scaling</strong></td>
+                                <td>❌ Manual scaling only</td>
+                                <td>✅ HPA & Manual scaling</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Load Balancing</strong></td>
+                                <td>❌ External setup required</td>
+                                <td>✅ Built-in services & ingress</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Enterprise Features</strong></td>
+                                <td>❌ Minimalistic</td>
+                                <td>✅ Enterprise-grade platform</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="highlight-box">
+                        <strong>Simple Answer:</strong> Docker runs containers, Kubernetes orchestrates them at scale!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Problems with Docker -->
+            <div class="section">
+                <div class="section-header">
+                    ⚠️ Four Critical Problems with Docker in Production
+                </div>
+                <div class="section-content">
+                    <!-- Problem 1: Single Host -->
+                    <div class="problem-solution">
+                        <div class="problem">
+                            <h4>❌ Problem 1: Single Host Limitation</h4>
+                            <div class="container-visual">
+                                <div class="container-box">C1</div>
+                                <div class="container-box">C2</div>
+                                <div class="container-box">C3</div>
+                                <div class="container-box">C4</div>
+                                <div class="container-box">C5</div>
+                                <div class="container-box">C6</div>
+                                <div class="container-box problem">C99 💥</div>
+                                <div class="container-box">C100</div>
+                            </div>
+                            <p><strong>Scenario:</strong> 100 containers on one host</p>
+                            <p><strong>Issue:</strong> Container 1 consumes too much memory → Container 99 dies due to resource starvation</p>
+                            <p><strong>Impact:</strong> Containers affect each other on same host</p>
+                        </div>
+                        <div class="solution">
+                            <h4>✅ Solution: Cluster Architecture</h4>
+                            <div class="architecture-diagram">
+                                <div class="master-node">
+                                    <strong>Master Node</strong><br>
+                                    Controls & Manages
+                                </div>
+                                <div class="worker-node">
+                                    <strong>Worker Node 1</strong><br>
+                                    C1, C2, C3
+                                </div>
+                                <div class="worker-node">
+                                    <strong>Worker Node 2</strong><br>
+                                    C99, C100
+                                </div>
+                                <div class="worker-node">
+                                    <strong>Worker Node 3</strong><br>
+                                    C4, C5, C6
+                                </div>
+                            </div>
+                            <p><strong>Benefit:</strong> If C1 causes problems on Node 1, C99 safely runs on Node 2</p>
+                        </div>
+                    </div>
+
+                    <!-- Problem 2: Auto-healing -->
+                    <div class="problem-solution">
+                        <div class="problem">
+                            <h4>❌ Problem 2: No Auto-healing</h4>
+                            <p><strong>Scenario:</strong> Container gets killed</p>
+                            <p><strong>Current State:</strong> Application becomes inaccessible</p>
+                            <p><strong>Required Action:</strong> Manual intervention by DevOps engineer</p>
+                            <div class="code-block">
+<pre># Manual check required
+docker ps
+
+# Manual restart required  
+docker start container_name</pre>
+                            </div>
+                            <p><strong>Problem:</strong> In production with 10,000+ containers, manual monitoring is impossible</p>
+                        </div>
+                        <div class="solution">
+                            <h4>✅ Solution: Automatic Rollout</h4>
+                            <p><strong>Kubernetes Auto-healing Process:</strong></p>
+                            <div class="flow-diagram">
+                                <div class="flow-step">Container Failing</div>
+                                <div class="flow-step">API Server Detects</div>
+                                <div class="flow-step">New Container Starts</div>
+                                <div class="flow-step">Zero Downtime</div>
+                            </div>
+                            <p><strong>Result:</strong> New container starts even before old one dies completely</p>
+                        </div>
+                    </div>
+
+                    <!-- Problem 3: Auto-scaling -->
+                    <div class="problem-solution">
+                        <div class="problem">
+                            <h4>❌ Problem 3: No Auto-scaling</h4>
+                            <div class="scaling-demo">
+                                <div class="scaling-before">
+                                    <strong>Normal Load</strong><br>
+                                    10,000 users<br>
+                                    1 Container
+                                </div>
+                                <div class="scaling-arrow">⚡</div>
+                                <div class="scaling-after">
+                                    <strong>Festival Load</strong><br>
+                                    100,000 users<br>
+                                    Still 1 Container 💥
+                                </div>
+                            </div>
+                            <p><strong>Manual Solutions Required:</strong></p>
+                            <ul>
+                                <li>Manually create 10 containers</li>
+                                <li>Configure load balancer</li>
+                                <li>Manage traffic distribution</li>
+                            </ul>
+                        </div>
+                        <div class="solution">
+                            <h4>✅ Solution: Replica Sets & HPA</h4>
+                            <h5>Manual Scaling with YAML:</h5>
+                            <div class="yaml-block">
+<pre>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 10  # Scale from 1 to 10
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app
+        image: my-app:latest</pre>
+                            </div>
+                            
+                            <h5>Automatic Scaling with HPA:</h5>
+                            <div class="yaml-block">
+<pre>apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app
+  minReplicas: 1
+  maxReplicas: 100
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80</pre>
+                            </div>
+                            <p><strong>Result:</strong> Automatic scaling based on CPU/memory thresholds</p>
+                        </div>
+                    </div>
+
+                    <!-- Problem 4: Enterprise Support -->
+                    <div class="problem-solution">
+                        <div class="problem">
+                            <h4>❌ Problem 4: Limited Enterprise Support</h4>
+                            <p><strong>Missing Enterprise Features:</strong></p>
+                            <ul>
+                                <li>❌ Advanced Load Balancers</li>
+                                <li>❌ Built-in Firewalls</li>
+                                <li>❌ API Gateways</li>
+                                <li>❌ Whitelisting/Blacklisting</li>
+                                <li>❌ Advanced Security Policies</li>
+                                <li>❌ Service Mesh</li>
+                            </ul>
+                            <p><strong>Reality:</strong> Docker alone is never used in production</p>
+                        </div>
+                        <div class="solution">
+                            <h4>✅ Solution: Enterprise-Grade Platform</h4>
+                            <div class="feature-grid">
+                                <div class="feature-card">
+                                    <h4>🌐 Built-in Load Balancing</h4>
+                                    <p>Services, Ingress Controllers</p>
+                                </div>
+                                <div class="feature-card">
+                                    <h4>🔒 Security Policies</h4>
+                                    <p>RBAC, Network Policies, Pod Security</p>
+                                </div>
+                                <div class="feature-card">
+                                    <h4>🚪 API Gateway</h4>
+                                    <p>Ingress Controllers, Service Mesh</p>
+                                </div>
+                                <div class="feature-card">
+                                    <h4>🔧 Extensibility</h4>
+                                    <p>Custom Resources, Operators</p>
+                                </div>
+                                <div class="feature-card">
+                                    <h4>📊 Monitoring</h4>
+                                    <p>Built-in metrics, Health checks</p>
+                                </div>
+                                <div class="feature-card">
+                                    <h4>🏢 CNCF Ecosystem</h4>
+                                    <p>Prometheus, Helm, Istio</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kubernetes Solutions -->
+            <div class="section">
+                <div class="section-header">
+                    🛠️ How Kubernetes Solves These Problems
+                </div>
+                <div class="section-content">
+                    <div class="success-box">
+                        <h4>🎯 Kubernetes: The Complete Solution</h4>
+                        <p>Kubernetes addresses all four critical problems through its comprehensive architecture and features.</p>
+                    </div>
+
+                    <h3>🏗️ Kubernetes Architecture Overview</h3>
+                    <div class="diagram">
+                        <h4>Master Node Components</h4>
+                        <div class="architecture-diagram">
+                            <div class="feature-card">
+                                <h4>API Server</h4>
+                                <p>Central management component</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4>etcd</h4>
+                                <p>Distributed key-value store</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4>Scheduler</h4>
+                                <p>Pod placement decisions</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4>Controller Manager</h4>
+                                <p>Maintains desired state</p>
+                            </div>
+                        </div>
+                        
+                        <h4>Worker Node Components</h4>
+                        <div class="architecture-diagram">
+                            <div class="feature-card">
+                                <h4>kubelet</h4>
+                                <p>Node agent</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4>kube-proxy</h4>
+                                <p>Network proxy</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4>Container Runtime</h4>
+                                <p>Docker/containerd</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>📊 Key Kubernetes Concepts</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>🎁 Pods</h4>
+                            <p>Smallest deployable unit containing one or more containers</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🚀 Deployments</h4>
+                            <p>Manage replica sets and rolling updates</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🌐 Services</h4>
+                            <p>Stable network endpoints for pods</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🚪 Ingress</h4>
+                            <p>HTTP/HTTPS routing to services</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>📦 ConfigMaps</h4>
+                            <p>Configuration data storage</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🔐 Secrets</h4>
+                            <p>Sensitive data management</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Practical Examples -->
+            <div class="section">
+                <div class="section-header">
+                    💻 Practical Examples & Commands
+                </div>
+                <div class="section-content">
+                    <h3>🏗️ Basic Deployment Example</h3>
+                    <div class="yaml-block">
+<pre>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"</pre>
+                    </div>
+
+                    <h3>🌐 Service Configuration</h3>
+                    <div class="yaml-block">
+<pre>apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer</pre>
+                    </div>
+
+                    <h3>🔧 Essential kubectl Commands</h3>
+                    <div class="code-block">
+<pre># Create deployment
+kubectl apply -f deployment.yaml
+
+# Get all pods
+kubectl get pods
+
+# Get all services
+kubectl get services
+
+# Get deployment status
+kubectl get deployments
+
+# Scale deployment
+kubectl scale deployment nginx-deployment --replicas=5
+
+# Get pod logs
+kubectl logs pod-name
+
+# Describe pod details
+kubectl describe pod pod-name
+
+# Execute command in pod
+kubectl exec -it pod-name -- /bin/bash
+
+# Delete deployment
+kubectl delete deployment nginx-deployment
+
+# Get cluster info
+kubectl cluster-info
+
+# Get nodes
+kubectl get nodes</pre>
+                    </div>
+
+                    <h3>📊 HPA Configuration Example</h3>
+                    <div class="yaml-block">
+<pre>apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-deployment
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Path -->
+            <div class="section">
+                <div class="section-header">
+                    🗺️ Your Kubernetes Learning Journey
+                </div>
+                <div class="section-content">
+                    <div class="info-box">
+                        <h4>📈 Progress Tracker</h4>
+                        <p>Understanding these four problems = <strong>5% of Kubernetes learned!</strong><br>
+                        The remaining 95% builds on this foundation.</p>
+                    </div>
+
+                    <h3>🎯 Upcoming Topics (Next Classes)</h3>
+                    <div class="flow-diagram">
+                        <div class="flow-step">Architecture Deep Dive</div>
+                        <div class="flow-step">Pods Mastery</div>
+                        <div class="flow-step">Deployments</div>
+                        <div class="flow-step">Services</div>
+                    </div>
+
+                    <div class="flow-diagram">
+                        <div class="flow-step">Ingress Controllers</div>
+                        <div class="flow-step">ConfigMaps & Secrets</div>
+                        <div class="flow-step">Admission Controllers</div>
+                        <div class="flow-step">Advanced Topics</div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>💡 Learning Tip</h4>
+                        <p>Don't worry if architecture components seem complex initially. Practical understanding develops over time through hands-on practice. Stay consistent with the learning journey!</p>
+                    </div>
+
+                    <h3>🚀 Why Kubernetes is the Future</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>📈 Industry Adoption</h4>
+                            <p>Most companies are migrating to microservices</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>☁️ Cloud Native</h4>
+                            <p>Perfect fit for cloud infrastructure</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🔧 CNCF Backing</h4>
+                            <p>Strong community and continuous development</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>💼 Job Market</h4>
+                            <p>High demand for Kubernetes skills</p>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        <strong>Remember:</strong> Kubernetes is EASY when you have the right foundation!<br>
+                        Master containers first, then Kubernetes becomes your superpower! 💪
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="section">
+                <div class="section-header">
+                    🎯 Key Takeaways & Summary
+                </div>
+                <div class="section-content">
+                    <div class="success-box">
+                        <h4>🏆 What You've Learned Today</h4>
+                        <ul>
+                            <li>✅ Why Kubernetes is essential for modern DevOps</li>
+                            <li>✅ Four critical limitations of Docker in production</li>
+                            <li>✅ How Kubernetes solves each limitation systematically</li>
+                            <li>✅ Basic Kubernetes architecture and concepts</li>
+                            <li>✅ Practical examples and essential commands</li>
+                        </ul>
+                    </div>
+
+                    <div class="problem-solution">
+                        <div class="problem">
+                            <h4>🐳 Docker: Container Platform</h4>
+                            <ul>
+                                <li>Single host limitation</li>
+                                <li>Manual healing required</li>
+                                <li>Manual scaling only</li>
+                                <li>Limited enterprise features</li>
+                            </ul>
+                        </div>
+                        <div class="solution">
+                            <h4>☸️ Kubernetes: Orchestration Platform</h4>
+                            <ul>
+                                <li>Multi-host cluster architecture</li>
+                                <li>Automatic healing & rollout</li>
+                                <li>Auto-scaling with HPA</li>
+                                <li>Enterprise-grade features</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        🚀 <strong>Next Steps:</strong> Practice with basic kubectl commands and prepare for deep-dive into Kubernetes architecture!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

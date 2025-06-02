@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Learning Modules</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        label {
+            font-weight: 600;
+            min-width: 120px;
+            color: #4a5568;
+        }
+        
+        select, input {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .modules-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+        }
+        
+        .module {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .module::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .module:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+        }
+        
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .module-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        
+        .module-duration {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .module-description {
+            color: #4a5568;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .learning-objectives {
+            margin-bottom: 20px;
+        }
+        
+        .learning-objectives h4 {
+            color: #2d3748;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .objective-list {
+            list-style: none;
+        }
+        
+        .objective-list li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            color: #4a5568;
+        }
+        
+        .objective-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #48bb78;
+            font-weight: bold;
+        }
+        
+        .hands-on-labs {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .hands-on-labs h4 {
+            color: #2d3748;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .lab-list {
+            list-style: none;
+        }
+        
+        .lab-list li {
+            padding: 6px 0;
+            color: #4a5568;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .lab-list li::before {
+            content: '🔬';
+            position: absolute;
+            left: 0;
+        }
+        
+        .module-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .difficulty {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .difficulty.beginner {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .difficulty.intermediate {
+            background: #fed7a1;
+            color: #744210;
+        }
+        
+        .difficulty.advanced {
+            background: #feb2b2;
+            color: #742a2a;
+        }
+        
+        .resources {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .resources:hover {
+            color: #764ba2;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .modules-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚢 Kubernetes Learning Modules</h1>
+            <p>Interactive, hands-on learning paths for mastering container orchestration</p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="audience">Target Audience:</label>
+                <select id="audience">
+                    <option value="absolute-beginner">Absolute Beginner (No container experience)</option>
+                    <option value="docker-familiar">Docker Familiar (Some container knowledge)</option>
+                    <option value="cloud-native">Cloud Native (K8s/DevOps experience)</option>
+                    <option value="enterprise">Enterprise (Production K8s users)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="context">Learning Context:</label>
+                <select id="context">
+                    <option value="self-paced">Self-Paced Online Course</option>
+                    <option value="workshop">Intensive Workshop (1-3 days)</option>
+                    <option value="bootcamp">DevOps Bootcamp</option>
+                    <option value="team-training">Corporate Team Training</option>
+                    <option value="certification">Certification Prep (CKA/CKAD)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="focus">Special Focus:</label>
+                <select id="focus">
+                    <option value="general">General Kubernetes Skills</option>
+                    <option value="security">Security-First Approach</option>
+                    <option value="devops">DevOps & CI/CD Integration</option>
+                    <option value="cloud">Cloud Provider Specific (AWS/GCP/Azure)</option>
+                    <option value="microservices">Microservices Architecture</option>
+                </select>
+            </div>
+            
+            <button class="generate-btn" onclick="generateModules()">🎯 Generate Custom Learning Path</button>
+        </div>
+        
+        <div id="modules-container" class="modules-container">
+            <!-- Modules will be dynamically generated here -->
+        </div>
+    </div>
+
+    <script>
+        const moduleTemplates = {
+            'absolute-beginner': [
+                {
+                    title: "Containerization Foundations",
+                    duration: "4 hours",
+                    difficulty: "beginner",
+                    description: "Start your journey with containers and understand why Kubernetes exists. Learn Docker basics and container concepts essential for K8s success.",
+                    objectives: [
+                        "Understand what containers are and why they matter",
+                        "Learn Docker basics: images, containers, volumes",
+                        "Grasp the problems Kubernetes solves",
+                        "Set up your development environment"
+                    ],
+                    labs: [
+                        "Install Docker and run your first container",
+                        "Build a simple web app container",
+                        "Experience container networking challenges",
+                        "Multi-container application pain points"
+                    ]
+                },
+                {
+                    title: "Kubernetes Architecture & Setup",
+                    duration: "6 hours",
+                    difficulty: "beginner",
+                    description: "Discover Kubernetes architecture and get hands-on with your first cluster. Learn about control plane, nodes, and core components.",
+                    objectives: [
+                        "Understand K8s architecture and components",
+                        "Learn about master nodes vs worker nodes",
+                        "Set up a local Kubernetes cluster",
+                        "Navigate kubectl and basic commands"
+                    ],
+                    labs: [
+                        "Install Minikube or Kind",
+                        "Explore cluster components with kubectl",
+                        "Dashboard tour and basic navigation",
+                        "First pod deployment and inspection"
+                    ]
+                },
+                {
+                    title: "Pods & Core Workloads",
+                    duration: "8 hours",
+                    difficulty: "beginner",
+                    description: "Master Kubernetes fundamental building blocks. Learn pods, deployments, and services through practical exercises.",
+                    objectives: [
+                        "Create and manage pods effectively",
+                        "Understand deployments and replica management",
+                        "Learn service types and networking basics",
+                        "Handle pod lifecycle and troubleshooting"
+                    ],
+                    labs: [
+                        "Deploy your first application",
+                        "Scale deployments up and down",
+                        "Expose services with different types",
+                        "Debug failed pods and containers"
+                    ]
+                }
+            ],
+            'docker-familiar': [
+                {
+                    title: "From Docker to Kubernetes",
+                    duration: "4 hours",
+                    difficulty: "intermediate",
+                    description: "Bridge your Docker knowledge to Kubernetes. Understand orchestration benefits and K8s-specific concepts.",
+                    objectives: [
+                        "Compare Docker Compose vs Kubernetes",
+                        "Understand orchestration at scale",
+                        "Learn Kubernetes resource management",
+                        "Master YAML configurations"
+                    ],
+                    labs: [
+                        "Convert Docker Compose to K8s manifests",
+                        "Deploy multi-tier applications",
+                        "Compare resource usage patterns",
+                        "Practice YAML debugging techniques"
+                    ]
+                },
+                {
+                    title: "Configuration & Secrets Management",
+                    duration: "6 hours",
+                    difficulty: "intermediate",
+                    description: "Learn how to properly manage application configuration, secrets, and environment-specific deployments in Kubernetes.",
+                    objectives: [
+                        "Master ConfigMaps and Secrets",
+                        "Implement environment-specific configs",
+                        "Understand volume mounts and data persistence",
+                        "Learn configuration best practices"
+                    ],
+                    labs: [
+                        "Create and use ConfigMaps",
+                        "Secure sensitive data with Secrets",
+                        "Set up persistent volumes",
+                        "Deploy across dev/staging/prod environments"
+                    ]
+                },
+                {
+                    title: "Networking & Service Discovery",
+                    duration: "8 hours",
+                    difficulty: "intermediate",
+                    description: "Deep dive into Kubernetes networking, ingress controllers, and service mesh concepts for production-ready applications.",
+                    objectives: [
+                        "Understand cluster networking architecture",
+                        "Configure ingress controllers and rules",
+                        "Implement load balancing strategies",
+                        "Explore service mesh basics"
+                    ],
+                    labs: [
+                        "Set up NGINX Ingress Controller",
+                        "Configure SSL/TLS termination",
+                        "Implement advanced routing rules",
+                        "Monitor network traffic and performance"
+                    ]
+                }
+            ],
+            'cloud-native': [
+                {
+                    title: "Advanced Scheduling & Resource Management",
+                    duration: "6 hours",
+                    difficulty: "advanced",
+                    description: "Master advanced Kubernetes scheduling, resource quotas, and cluster optimization for production workloads.",
+                    objectives: [
+                        "Implement advanced scheduling strategies",
+                        "Configure resource quotas and limits",
+                        "Use taints, tolerations, and affinity",
+                        "Optimize cluster resource utilization"
+                    ],
+                    labs: [
+                        "Create custom scheduling policies",
+                        "Implement horizontal and vertical autoscaling",
+                        "Configure multi-zone deployments",
+                        "Performance tune production workloads"
+                    ]
+                },
+                {
+                    title: "Security & Compliance",
+                    duration: "8 hours",
+                    difficulty: "advanced",
+                    description: "Implement comprehensive Kubernetes security following 2025 best practices including Pod Security Standards and supply chain security.",
+                    objectives: [
+                        "Implement Pod Security Standards",
+                        "Configure RBAC and network policies",
+                        "Secure container images and supply chain",
+                        "Monitor and audit cluster security"
+                    ],
+                    labs: [
+                        "Set up Pod Security Admission",
+                        "Create granular RBAC policies",
+                        "Implement image scanning and signing",
+                        "Deploy security monitoring tools"
+                    ]
+                },
+                {
+                    title: "Observability & Production Operations",
+                    duration: "10 hours",
+                    difficulty: "advanced",
+                    description: "Build comprehensive monitoring, logging, and alerting for production Kubernetes clusters with modern observability tools.",
+                    objectives: [
+                        "Implement comprehensive monitoring stack",
+                        "Set up centralized logging and tracing",
+                        "Create effective alerting strategies",
+                        "Master cluster troubleshooting techniques"
+                    ],
+                    labs: [
+                        "Deploy Prometheus and Grafana",
+                        "Configure distributed tracing",
+                        "Set up log aggregation with ELK/Loki",
+                        "Practice production incident response"
+                    ]
+                }
+            ]
+        };
+
+        const contextModifications = {
+            'workshop': {
+                durationMultiplier: 0.7,
+                addPracticalFocus: true
+            },
+            'certification': {
+                addCertificationNote: true,
+                focusOnExamTopics: true
+            },
+            'team-training': {
+                addCollaborativeElements: true,
+                includeRealWorldScenarios: true
+            }
+        };
+
+        const focusModifications = {
+            'security': {
+                emphasizeSecurity: true,
+                addSecurityLabs: true
+            },
+            'devops': {
+                addCICDIntegration: true,
+                focusOnAutomation: true
+            },
+            'cloud': {
+                addCloudSpecificContent: true,
+                includeCloudServices: true
+            }
+        };
+
+        function generateModules() {
+            const audience = document.getElementById('audience').value;
+            const context = document.getElementById('context').value;
+            const focus = document.getElementById('focus').value;
+            
+            const container = document.getElementById('modules-container');
+            container.innerHTML = '';
+            
+            let modules = [...moduleTemplates[audience]];
+            
+            // Apply context modifications
+            if (contextModifications[context]) {
+                modules = applyContextModifications(modules, contextModifications[context]);
+            }
+            
+            // Apply focus modifications
+            if (focusModifications[focus]) {
+                modules = applyFocusModifications(modules, focusModifications[focus], focus);
+            }
+            
+            modules.forEach(module => {
+                const moduleElement = createModuleElement(module);
+                container.appendChild(moduleElement);
+            });
+        }
+
+        function applyContextModifications(modules, modifications) {
+            return modules.map(module => {
+                const modified = {...module};
+                
+                if (modifications.durationMultiplier) {
+                    const hours = parseInt(modified.duration);
+                    const newHours = Math.round(hours * modifications.durationMultiplier);
+                    modified.duration = `${newHours} hours`;
+                }
+                
+                if (modifications.addCertificationNote) {
+                    modified.description += " Aligned with CKA/CKAD exam objectives.";
+                }
+                
+                if (modifications.addCollaborativeElements) {
+                    modified.labs.push("Team collaboration exercise", "Pair programming session");
+                }
+                
+                return modified;
+            });
+        }
+
+        function applyFocusModifications(modules, modifications, focus) {
+            return modules.map(module => {
+                const modified = {...module};
+                
+                if (focus === 'security') {
+                    modified.objectives.push("Implement security best practices");
+                    modified.labs.push("Security scanning and compliance check");
+                }
+                
+                if (focus === 'devops') {
+                    modified.objectives.push("Integrate with CI/CD pipelines");
+                    modified.labs.push("Set up automated deployments");
+                }
+                
+                if (focus === 'cloud') {
+                    modified.objectives.push("Leverage cloud-native services");
+                    modified.labs.push("Deploy on managed Kubernetes service");
+                }
+                
+                return modified;
+            });
+        }
+
+        function createModuleElement(module) {
+            const moduleDiv = document.createElement('div');
+            moduleDiv.className = 'module';
+            
+            moduleDiv.innerHTML = `
+                <div class="module-header">
+                    <h3 class="module-title">${module.title}</h3>
+                    <span class="module-duration">${module.duration}</span>
+                </div>
+                
+                <p class="module-description">${module.description}</p>
+                
+                <div class="learning-objectives">
+                    <h4>🎯 Learning Objectives</h4>
+                    <ul class="objective-list">
+                        ${module.objectives.map(obj => `<li>${obj}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="hands-on-labs">
+                    <h4>🔬 Hands-on Labs</h4>
+                    <ul class="lab-list">
+                        ${module.labs.map(lab => `<li>${lab}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="module-footer">
+                    <span class="difficulty ${module.difficulty}">${module.difficulty}</span>
+                    <a href="#" class="resources">📚 Resources & Setup Guide</a>
+                </div>
+            `;
+            
+            return moduleDiv;
+        }
+
+        // Generate default modules on page load
+        window.addEventListener('load', () => {
+            generateModules();
+        });
+    </script>
+</body>
+</html>

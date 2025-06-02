@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Security Like a Pro - Complete Guide 2025</title>
+    <style>
+        :root {
+            --primary-color: #326ce5;
+            --secondary-color: #1976d2;
+            --accent-color: #ff6b35;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --dark-bg: #1a1a1a;
+            --card-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --code-bg: #f5f5f5;
+            --gradient: linear-gradient(135deg, #326ce5 0%, #1976d2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--gradient);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(50, 108, 229, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .nav-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .nav-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .section {
+            background: var(--card-bg);
+            margin-bottom: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: var(--gradient);
+            color: white;
+            padding: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-content {
+            padding: 2rem;
+        }
+
+        .priority-badge {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .icon {
+            font-size: 1.8rem;
+        }
+
+        .subsection {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .subsection h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .code-block {
+            background: var(--dark-bg);
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--primary-color);
+            position: relative;
+        }
+
+        .code-block::before {
+            content: attr(data-lang);
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .command-box {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .command-box::before {
+            content: "$ ";
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .architecture-diagram {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .flow-step {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: 0.5rem;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .flow-step::after {
+            content: "→";
+            position: absolute;
+            right: -1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .flow-step:last-child::after {
+            display: none;
+        }
+
+        .security-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .matrix-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .matrix-item h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-comparison {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        .tool-comparison table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tool-comparison th {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .tool-comparison td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tool-comparison tr:hover {
+            background: #f5f5f5;
+        }
+
+        .security-checklist {
+            background: #e8f5e8;
+            border: 2px solid var(--success-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .security-checklist h4 {
+            color: var(--success-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .checkmark {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 2px solid var(--warning-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .warning-icon {
+            color: var(--warning-color);
+            font-size: 1.5rem;
+        }
+
+        .danger-box {
+            background: #f8d7da;
+            border: 2px solid var(--danger-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .danger-icon {
+            color: var(--danger-color);
+            font-size: 1.5rem;
+        }
+
+        .trend-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+
+        .trend-card h4 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-content {
+                padding: 1rem;
+            }
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .scroll-top:hover {
+            background: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ Kubernetes Security Like a Pro</h1>
+            <p>Complete DevSecOps Guide for Securing Kubernetes Clusters in 2025</p>
+        </header>
+
+        <!-- Navigation Grid -->
+        <div class="nav-grid">
+            <div class="nav-card" onclick="scrollToSection('api-server')">
+                <h3>🔐 API Server Security</h3>
+                <p>TLS certificates, authentication, and access control</p>
+            </div>
+            <div class="nav-card" onclick="scrollToSection('rbac')">
+                <h3>👥 RBAC Configuration</h3>
+                <p>Role-based access control and service accounts</p>
+            </div>
+            <div class="nav-card" onclick="scrollToSection('network-policies')">
+                <h3>🌐 Network Policies</h3>
+                <p>Traffic control and namespace isolation</p>
+            </div>
+            <div class="nav-card" onclick="scrollToSection('etcd-encryption')">
+                <h3>🔒 Data Encryption</h3>
+                <p>Securing etcd and secrets at rest</p>
+            </div>
+            <div class="nav-card" onclick="scrollToSection('container-security')">
+                <h3>📦 Container Security</h3>
+                <p>Image scanning and vulnerability management</p>
+            </div>
+            <div class="nav-card" onclick="scrollToSection('monitoring')">
+                <h3>📊 Cluster Monitoring</h3>
+                <p>Runtime security and threat detection</p>
+            </div>
+            <div class="nav-card" onclick="scrollToSection('upgrades')">
+                <h3>🔄 Regular Upgrades</h3>
+                <p>Keeping components up-to-date</p>
+            </div>
+            <div class="nav-card" onclick="scrollToSection('advanced')">
+                <h3>⚡ Advanced Security</h3>
+                <p>2025 trends and best practices</p>
+            </div>
+        </div>
+
+        <!-- Introduction Section -->
+        <div class="section">
+            <div class="section-header">
+                <span class="icon">🎯</span>
+                Top 7 Priority Security Points
+            </div>
+            <div class="section-content">
+                <p>To secure your Kubernetes cluster like a pro, these are the essential security points every DevSecOps engineer must master:</p>
+                
+                <div class="security-matrix">
+                    <div class="matrix-item">
+                        <h4>🔐 API Server Security</h4>
+                        <p>First point of entry - must be bulletproof</p>
+                    </div>
+                    <div class="matrix-item">
+                        <h4>👥 RBAC Excellence</h4>
+                        <p>Control who can do what in your cluster</p>
+                    </div>
+                    <div class="matrix-item">
+                        <h4>🌐 Network Policies</h4>
+                        <p>Isolate and protect your workloads</p>
+                    </div>
+                    <div class="matrix-item">
+                        <h4>🔒 Encryption at Rest</h4>
+                        <p>Protect sensitive data in etcd</p>
+                    </div>
+                    <div class="matrix-item">
+                        <h4>📦 Secure Images</h4>
+                        <p>Scan and validate all container images</p>
+                    </div>
+                    <div class="matrix-item">
+                        <h4>📊 Monitoring</h4>
+                        <p>Detect and respond to threats</p>
+                    </div>
+                    <div class="matrix-item">
+                        <h4>🔄 Regular Updates</h4>
+                        <p>Keep everything current and patched</p>
+                    </div>
+                    <div class="matrix-item">
+                        <h4>⚡ Advanced Practices</h4>
+                        <p>2025 security trends and tools</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. API Server Security -->
+        <div id="api-server" class="section">
+            <div class="section-header">
+                <span class="icon">🔐</span>
+                1. Secure Your API Server
+                <span class="priority-badge">CRITICAL</span>
+            </div>
+            <div class="section-content">
+                <div class="subsection">
+                    <h3>🎯 What is the API Server?</h3>
+                    <p>The API server is the <strong>first point of entry</strong> in a Kubernetes cluster. All requests from kubectl, REST APIs, or any application go through the API server. If compromised, your entire cluster is at risk.</p>
+                    
+                    <div class="architecture-diagram">
+                        <h4>Kubernetes API Server Architecture</h4>
+                        <div style="margin: 1rem 0;">
+                            <div class="flow-step">User/kubectl</div>
+                            <div class="flow-step">API Server</div>
+                            <div class="flow-step">Authentication</div>
+                            <div class="flow-step">Authorization (RBAC)</div>
+                            <div class="flow-step">Admission Controllers</div>
+                            <div class="flow-step">etcd</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🔒 Method A: TLS Certificates</h3>
+                    
+                    <div class="warning-box">
+                        <span class="warning-icon">⚠️</span>
+                        <div>
+                            <strong>Important:</strong> Always use HTTPS (TLS) for API server communication. HTTP is like leaving your front door wide open!
+                        </div>
+                    </div>
+
+                    <h4>Finding the API Server Pod:</h4>
+                    <div class="command-box">kubectl get pods -n kube-system | grep kube-api-server</div>
+                    <div class="command-box">kubectl get pods -A | grep kube-api-server</div>
+
+                    <h4>Configuring TLS in kube-api-server:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  containers:
+  - name: kube-apiserver
+    image: k8s.gcr.io/kube-apiserver:v1.28.0
+    command:
+    - kube-apiserver
+    - --tls-cert-file=/etc/kubernetes/pki/apiserver.crt
+    - --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
+    - --client-ca-file=/etc/kubernetes/pki/ca.crt
+    - --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt
+    - --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt
+    - --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key
+    - --secure-port=6443
+    - --insecure-port=0  # Disable insecure port
+    volumeMounts:
+    - name: k8s-certs
+      mountPath: /etc/kubernetes/pki
+      readOnly: true</pre>
+                    </div>
+
+                    <h4>Generating Self-Signed Certificates:</h4>
+                    <div class="command-box">openssl req -x509 -newkey rsa:4096 -keyout apiserver.key -out apiserver.crt -days 365 -nodes</div>
+                    
+                    <h4>Or using kubeadm:</h4>
+                    <div class="command-box">kubeadm init phase certs apiserver --config kubeadm-config.yaml</div>
+                </div>
+
+                <div class="subsection">
+                    <h3>👥 Method B: RBAC Access Control</h3>
+                    <p>Role-Based Access Control limits who can access the API server and what they can do.</p>
+
+                    <h4>Example: Creating a Limited User Role</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: development
+  name: pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "watch", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: development
+subjects:
+- kind: User
+  name: developer-xyz
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io</pre>
+                    </div>
+
+                    <div class="command-box">kubectl apply -f rbac-config.yaml</div>
+                    <div class="command-box">kubectl auth can-i get pods --as=developer-xyz -n development</div>
+                </div>
+
+                <div class="security-checklist">
+                    <h4>✅ API Server Security Checklist</h4>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>TLS certificates configured and valid</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Insecure port (8080) disabled</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Strong authentication mechanisms enabled</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>RBAC properly configured</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>API server accessible only from secure networks</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. RBAC Configuration -->
+        <div id="rbac" class="section">
+            <div class="section-header">
+                <span class="icon">👥</span>
+                2. Kubernetes RBAC Mastery
+                <span class="priority-badge">ESSENTIAL</span>
+            </div>
+            <div class="section-content">
+                <div class="subsection">
+                    <h3>🎯 Understanding RBAC</h3>
+                    <p>RBAC is like IAM for AWS or users/groups on Linux. It defines <strong>who can do what</strong> on your Kubernetes cluster.</p>
+                    
+                    <div class="architecture-diagram">
+                        <h4>RBAC Components</h4>
+                        <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                            <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <strong>Subjects</strong><br>
+                                Users, Groups,<br>Service Accounts
+                            </div>
+                            <div style="font-size: 2rem;">+</div>
+                            <div style="background: #f3e5f5; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <strong>Roles</strong><br>
+                                Permissions<br>& Rules
+                            </div>
+                            <div style="font-size: 2rem;">=</div>
+                            <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <strong>RoleBinding</strong><br>
+                                Grants Access
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>👤 Users vs Service Accounts</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0;">
+                        <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px;">
+                            <h4>👤 Users</h4>
+                            <ul>
+                                <li>Real people (developers, admins)</li>
+                                <li>External identity systems</li>
+                                <li>Certificate-based auth</li>
+                                <li>OIDC integration</li>
+                            </ul>
+                        </div>
+                        <div style="background: #f3e5f5; padding: 1rem; border-radius: 8px;">
+                            <h4>🤖 Service Accounts</h4>
+                            <ul>
+                                <li>Applications and pods</li>
+                                <li>CI/CD systems</li>
+                                <li>Automated processes</li>
+                                <li>Token-based auth</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🔧 Role Types</h3>
+                    
+                    <h4>Namespace-scoped Role:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: production
+  name: deployment-manager
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get", "list", "watch"]</pre>
+                    </div>
+
+                    <h4>Cluster-wide ClusterRole:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: node-reader
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["nodes", "pods"]
+  verbs: ["get", "list"]</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🔗 RoleBindings</h3>
+                    
+                    <h4>Binding User to Role:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: deployment-manager-binding
+  namespace: production
+subjects:
+- kind: User
+  name: alice@company.com
+  apiGroup: rbac.authorization.k8s.io
+- kind: ServiceAccount
+  name: ci-cd-sa
+  namespace: production
+roleRef:
+  kind: Role
+  name: deployment-manager
+  apiGroup: rbac.authorization.k8s.io</pre>
+                    </div>
+
+                    <h4>ClusterRoleBinding for Cluster-wide Access:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: monitoring-binding
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: monitoring
+roleRef:
+  kind: ClusterRole
+  name: node-reader
+  apiGroup: rbac.authorization.k8s.io</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🛠️ RBAC Management Commands</h3>
+                    
+                    <h4>Creating Service Account:</h4>
+                    <div class="command-box">kubectl create serviceaccount my-service-account -n production</div>
+                    
+                    <h4>Checking Permissions:</h4>
+                    <div class="command-box">kubectl auth can-i create deployments --as=alice@company.com -n production</div>
+                    <div class="command-box">kubectl auth can-i "*" "*" --as=system:serviceaccount:kube-system:default</div>
+                    
+                    <h4>Viewing RBAC Resources:</h4>
+                    <div class="command-box">kubectl get roles,rolebindings -A</div>
+                    <div class="command-box">kubectl get clusterroles,clusterrolebindings</div>
+                    
+                    <h4>Describe Role Permissions:</h4>
+                    <div class="command-box">kubectl describe role deployment-manager -n production</div>
+                </div>
+
+                <div class="danger-box">
+                    <span class="danger-icon">🚨</span>
+                    <div>
+                        <strong>Common RBAC Mistakes:</strong>
+                        <ul>
+                            <li>Granting excessive cluster-admin permissions</li>
+                            <li>Using default service accounts for applications</li>
+                            <li>Not following principle of least privilege</li>
+                            <li>Forgetting to audit RBAC configurations regularly</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Network Policies -->
+        <div id="network-policies" class="section">
+            <div class="section-header">
+                <span class="icon">🌐</span>
+                3. Network Policies & Traffic Control
+                <span class="priority-badge">CRITICAL</span>
+            </div>
+            <div class="section-content">
+                <div class="subsection">
+                    <h3>🎯 Why Network Policies?</h3>
+                    <p>By default, Kubernetes allows all traffic between pods. Network policies act as <strong>firewall rules</strong> to control traffic flow and implement network segmentation.</p>
+                    
+                    <div class="architecture-diagram">
+                        <h4>Network Policy Enforcement</h4>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1rem 0;">
+                            <div style="background: #ffebee; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <strong>Namespace A</strong><br>
+                                Public Services<br>
+                                🌐 Internet Access
+                            </div>
+                            <div style="background: #fff3e0; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <strong>Namespace B</strong><br>
+                                Internal APIs<br>
+                                🔒 Restricted Access
+                            </div>
+                            <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <strong>Namespace C</strong><br>
+                                Database Layer<br>
+                                🚫 Highly Secure
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🚫 Deny All Traffic (Default Secure)</h3>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+  namespace: secure-namespace
+spec:
+  podSelector: {}  # Applies to all pods
+  policyTypes:
+  - Ingress
+  - Egress
+  # No ingress/egress rules = deny all</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>✅ Allow Specific Traffic</h3>
+                    
+                    <h4>Allow Frontend to Backend Communication:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backend
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      role: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          role: frontend
+    ports:
+    - protocol: TCP
+      port: 8080</pre>
+                    </div>
+
+                    <h4>Allow Database Access from API Only:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-to-database
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      role: database
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          role: api
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring  # Allow monitoring namespace
+    ports:
+    - protocol: TCP
+      port: 5432</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🌐 Egress Control</h3>
+                    
+                    <h4>Allow External API Access:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-external-apis
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      role: api-client
+  policyTypes:
+  - Egress
+  egress:
+  - to: []  # Allow all external traffic
+    ports:
+    - protocol: TCP
+      port: 443  # HTTPS only
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system  # Allow DNS
+    ports:
+    - protocol: UDP
+      port: 53</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🛠️ Network Policy Management</h3>
+                    
+                    <h4>Testing Network Policies:</h4>
+                    <div class="command-box">kubectl run test-pod --image=nginx --labels="role=test" -n production</div>
+                    <div class="command-box">kubectl exec -it test-pod -n production -- curl backend-service:8080</div>
+                    
+                    <h4>Viewing Network Policies:</h4>
+                    <div class="command-box">kubectl get networkpolicies -A</div>
+                    <div class="command-box">kubectl describe networkpolicy allow-frontend-to-backend -n production</div>
+                    
+                    <h4>Troubleshooting:</h4>
+                    <div class="command-box">kubectl logs -n kube-system -l k8s-app=calico-node</div>
+                </div>
+
+                <div class="warning-box">
+                    <span class="warning-icon">⚠️</span>
+                    <div>
+                        <strong>Network Policy Requirements:</strong> Network policies require a CNI plugin that supports them (Calico, Cilium, Weave Net). Standard Kubernetes networking doesn't enforce these policies.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. etcd Encryption -->
+        <div id="etcd-encryption" class="section">
+            <div class="section-header">
+                <span class="icon">🔒</span>
+                4. Encrypt Data at Rest in etcd
+                <span class="priority-badge">CRITICAL</span>
+            </div>
+            <div class="section-content">
+                <div class="subsection">
+                    <h3>🎯 Why etcd Encryption Matters</h3>
+                    <p>etcd stores ALL cluster data including secrets, passwords, and API keys. Even with perfect RBAC, a hacker accessing etcd directly can read everything unless it's encrypted.</p>
+                    
+                    <div class="danger-box">
+                        <span class="danger-icon">🚨</span>
+                        <div>
+                            <strong>The Hacker Scenario:</strong> Imagine you've configured perfect RBAC blocking access to secrets. A hacker gains access to the etcd database directly and can read all secrets in plain text, bypassing your RBAC entirely!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🔐 Encryption Configuration</h3>
+                    
+                    <h4>1. Create Encryption Configuration:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+- resources:
+  - secrets
+  - configmaps
+  - pandas.awesome.bears.example  # Custom resources
+  providers:
+  - aescbc:
+      keys:
+      - name: key1
+        secret: c2VjcmV0IGlzIHNlY3VyZQ==  # Base64 encoded 32-byte key
+  - identity: {}  # Fallback for reading old data</pre>
+                    </div>
+
+                    <h4>2. Generate Encryption Key:</h4>
+                    <div class="command-box">head -c 32 /dev/urandom | base64</div>
+                    
+                    <h4>3. Update API Server Configuration:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  containers:
+  - name: kube-apiserver
+    image: k8s.gcr.io/kube-apiserver:v1.28.0
+    command:
+    - kube-apiserver
+    - --encryption-provider-config=/etc/kubernetes/encryption-config.yaml
+    - --encryption-provider-config-automatic-reload=true
+    volumeMounts:
+    - name: encryption-config
+      mountPath: /etc/kubernetes
+      readOnly: true
+  volumes:
+  - name: encryption-config
+    hostPath:
+      path: /etc/kubernetes
+      type: DirectoryOrCreate</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🔄 Key Rotation Process</h3>
+                    
+                    <h4>1. Add New Key (keep old key for reading):</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>resources:
+- resources:
+  - secrets
+  providers:
+  - aescbc:
+      keys:
+      - name: key2  # New key for writing
+        secret: bmV3c2VjcmV0aXNzZWN1cmU=
+      - name: key1  # Old key for reading existing data
+        secret: c2VjcmV0IGlzIHNlY3VyZQ==
+  - identity: {}</pre>
+                    </div>
+
+                    <h4>2. Re-encrypt All Secrets:</h4>
+                    <div class="command-box">kubectl get secrets --all-namespaces -o json | kubectl replace -f -</div>
+                    
+                    <h4>3. Remove Old Key After Re-encryption:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>resources:
+- resources:
+  - secrets
+  providers:
+  - aescbc:
+      keys:
+      - name: key2  # Only new key remains
+        secret: bmV3c2VjcmV0aXNzZWN1cmU=
+  - identity: {}</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🔍 Verification</h3>
+                    
+                    <h4>Check if Encryption is Working:</h4>
+                    <div class="command-box">kubectl create secret generic test-secret --from-literal=password=mypassword</div>
+                    <div class="command-box">ETCDCTL_API=3 etcdctl get /registry/secrets/default/test-secret | hexdump -C</div>
+                    
+                    <p>If encrypted, you should see encrypted data, not plain text "mypassword".</p>
+                    
+                    <h4>Verify Encryption Status:</h4>
+                    <div class="command-box">kubectl get secret test-secret -o yaml</div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🏪 External Secret Management</h3>
+                    
+                    <h4>HashiCorp Vault Integration:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: v1
+kind: Secret
+metadata:
+  name: vault-secret
+  annotations:
+    vault.hashicorp.com/agent-inject: "true"
+    vault.hashicorp.com/role: "myapp"
+    vault.hashicorp.com/agent-inject-secret-config: "secret/myapp/config"
+type: Opaque</pre>
+                    </div>
+
+                    <h4>AWS Secrets Manager:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
+metadata:
+  name: aws-secret-store
+spec:
+  provider:
+    aws:
+      service: SecretsManager
+      region: us-west-2
+      auth:
+        jwt:
+          serviceAccountRef:
+            name: external-secrets-sa</pre>
+                    </div>
+                </div>
+
+                <div class="security-checklist">
+                    <h4>✅ Encryption Security Checklist</h4>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Encryption at rest enabled for secrets</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Strong encryption keys (AES-256)</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Regular key rotation implemented</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>External secret management considered</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>etcd access properly secured</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Container Security -->
+        <div id="container-security" class="section">
+            <div class="section-header">
+                <span class="icon">📦</span>
+                5. Use Secure Container Images
+                <span class="priority-badge">ESSENTIAL</span>
+            </div>
+            <div class="section-content">
+                <div class="subsection">
+                    <h3>🎯 The Container Security Challenge</h3>
+                    <p>Container images can contain vulnerabilities in the OS, libraries, or application code. <strong>Every vulnerability is a potential attack vector.</strong></p>
+                    
+                    <div class="warning-box">
+                        <span class="warning-icon">⚠️</span>
+                        <div>
+                            <strong>Common Mistake:</strong> Using <code>FROM ubuntu:latest</code> without checking for vulnerabilities. Always use specific, secure versions and scan your images!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🔍 Container Scanning Tools Comparison</h3>
+                    
+                    <div class="tool-comparison">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tool</th>
+                                    <th>Speed</th>
+                                    <th>Accuracy</th>
+                                    <th>Features</th>
+                                    <th>Best For</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Trivy</strong></td>
+                                    <td>⚡ Very Fast</td>
+                                    <td>🎯 High</td>
+                                    <td>Vulnerabilities, Secrets, Misconfigurations</td>
+                                    <td>CI/CD, General Use</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Grype</strong></td>
+                                    <td>⚡ Fast</td>
+                                    <td>🎯 High</td>
+                                    <td>Vulnerabilities, SBOM</td>
+                                    <td>Developer Workflows</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Clair</strong></td>
+                                    <td>🐌 Moderate</td>
+                                    <td>🎯 Very High</td>
+                                    <td>Detailed Vulnerability Analysis</td>
+                                    <td>Kubernetes Integration</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Snyk</strong></td>
+                                    <td>⚡ Fast</td>
+                                    <td>🎯 High</td>
+                                    <td>Full SDLC Integration</td>
+                                    <td>Enterprise (Paid)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🛠️ Trivy - The Swiss Army Knife</h3>
+                    
+                    <h4>Installation:</h4>
+                    <div class="command-box">curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin</div>
+                    
+                    <h4>Basic Image Scanning:</h4>
+                    <div class="command-box">trivy image nginx:latest</div>
+                    <div class="command-box">trivy image --severity HIGH,CRITICAL ubuntu:20.04</div>
+                    
+                    <h4>Scan Dockerfile:</h4>
+                    <div class="command-box">trivy config Dockerfile</div>
+                    
+                    <h4>Scan Kubernetes Manifests:</h4>
+                    <div class="command-box">trivy config k8s-deployment.yaml</div>
+                    
+                    <h4>Scan for Secrets:</h4>
+                    <div class="command-box">trivy fs --scanners secret .</div>
+                    
+                    <h4>Generate SBOM:</h4>
+                    <div class="command-box">trivy image --format spdx-json nginx:latest</div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🔧 Grype - Fast and Simple</h3>
+                    
+                    <h4>Installation:</h4>
+                    <div class="command-box">curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin</div>
+                    
+                    <h4>Basic Usage:</h4>
+                    <div class="command-box">grype nginx:latest</div>
+                    <div class="command-box">grype docker.io/library/postgres:13</div>
+                    
+                    <h4>Output Formats:</h4>
+                    <div class="command-box">grype -o json nginx:latest</div>
+                    <div class="command-box">grype -o sarif nginx:latest</div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🏗️ Secure Dockerfile Practices</h3>
+                    
+                    <h4>❌ Insecure Dockerfile:</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+<pre>FROM ubuntu:latest
+RUN apt-get update && apt-get install -y python3
+USER root
+COPY . /app
+WORKDIR /app
+EXPOSE 8080
+CMD ["python3", "app.py"]</pre>
+                    </div>
+
+                    <h4>✅ Secure Dockerfile:</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+<pre># Use specific, patched version
+FROM ubuntu:20.04-20231003
+
+# Update and remove cache in same layer
+RUN apt-get update && \
+    apt-get install -y python3=3.8.10-0ubuntu1~20.04.8 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Copy files with proper ownership
+COPY --chown=appuser:appuser . /app
+WORKDIR /app
+
+# Don't run as root
+USER appuser
+
+# Use non-privileged port
+EXPOSE 8080
+
+# Use exec form and specific command
+CMD ["python3", "app.py"]</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🚀 CI/CD Integration</h3>
+                    
+                    <h4>GitHub Actions with Trivy:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>name: Container Security Scan
+on: [push, pull_request]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Build Docker image
+      run: docker build -t myapp:${{ github.sha }} .
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'myapp:${{ github.sha }}'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+        exit-code: '1'  # Fail build on vulnerabilities
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'</pre>
+                    </div>
+
+                    <h4>Kubernetes Admission Controller:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionWebhook
+metadata:
+  name: image-security-webhook
+webhooks:
+- name: validate-images.example.com
+  clientConfig:
+    service:
+      name: image-scanner-service
+      namespace: security
+      path: "/validate"
+  rules:
+  - operations: ["CREATE", "UPDATE"]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+  admissionReviewVersions: ["v1", "v1beta1"]</pre>
+                    </div>
+                </div>
+
+                <div class="security-checklist">
+                    <h4>✅ Container Security Checklist</h4>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Use specific image tags, not 'latest'</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Scan images for vulnerabilities in CI/CD</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Use minimal base images (Alpine, Distroless)</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Run containers as non-root user</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Implement image signing and verification</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Regular base image updates</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Cluster Monitoring -->
+        <div id="monitoring" class="section">
+            <div class="section-header">
+                <span class="icon">📊</span>
+                6. Cluster Monitoring & Runtime Security
+                <span class="priority-badge">CRITICAL</span>
+            </div>
+            <div class="section-content">
+                <div class="subsection">
+                    <h3>🎯 Why Monitoring is Essential</h3>
+                    <p>Even with perfect security, you need to <strong>detect malicious activity</strong> when it happens. Monitoring provides your security intelligence and early warning system.</p>
+                    
+                    <div class="danger-box">
+                        <span class="danger-icon">🚨</span>
+                        <div>
+                            <strong>Example Attack Scenario:</strong> A developer creates a pod that tries to access <code>/etc/shadow</code> or runs as root user. Without monitoring, you'll never know this suspicious activity occurred!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🛡️ Falco - Runtime Security</h3>
+                    
+                    <h4>Installation via Helm:</h4>
+                    <div class="command-box">helm repo add falcosecurity https://falcosecurity.github.io/charts</div>
+                    <div class="command-box">helm install falco falcosecurity/falco --namespace falco-system --create-namespace</div>
+                    
+                    <h4>Key Falco Rules:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre># Custom Falco rules
+- rule: Shell in Container
+  desc: Detect shell being spawned in container
+  condition: >
+    spawned_process and
+    shell_procs and
+    container and
+    not user_expected_terminal_shell_in_container_conditions
+  output: >
+    Shell spawned in container (user=%user.name %container.info 
+    shell=%proc.name parent=%proc.pname cmdline=%proc.cmdline terminal=%proc.tty)
+  priority: WARNING
+
+- rule: Container Run as Root User
+  desc: Detect containers running as root
+  condition: >
+    container and
+    user.uid=0 and
+    not user_known_container_root_conditions
+  output: >
+    Container running as root (user=%user.name %container.info 
+    image=%container.image.repository:%container.image.tag)
+  priority: WARNING
+
+- rule: Sensitive File Access
+  desc: Detect access to sensitive files
+  condition: >
+    open_read and
+    sensitive_files and
+    not user_known_read_sensitive_files_activities
+  output: >
+    Sensitive file opened for reading (user=%user.name 
+    command=%proc.cmdline file=%fd.name %container.info)
+  priority: ERROR</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>📊 Prometheus + Grafana Monitoring</h3>
+                    
+                    <h4>Install Prometheus Stack:</h4>
+                    <div class="command-box">helm repo add prometheus-community https://prometheus-community.github.io/helm-charts</div>
+                    <div class="command-box">helm install prometheus prometheus-community/kube-prometheus-stack -n monitoring --create-namespace</div>
+                    
+                    <h4>Security Metrics to Monitor:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre># ServiceMonitor for security metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: falco-metrics
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: falco
+  endpoints:
+  - port: http-metrics
+    interval: 30s
+    path: /metrics</pre>
+                    </div>
+
+                    <h4>Critical Alerts:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>groups:
+- name: kubernetes-security
+  rules:
+  - alert: PodRunningAsRoot
+    expr: falco_events{rule_name="Container Run as Root User"} > 0
+    for: 0m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Container running as root detected"
+      description: "Pod {{ $labels.pod }} is running as root user"
+
+  - alert: SensitiveFileAccess
+    expr: falco_events{rule_name="Sensitive File Access"} > 0
+    for: 0m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Sensitive file access detected"
+      description: "Unauthorized access to sensitive file detected"
+
+  - alert: ShellInContainer
+    expr: falco_events{rule_name="Shell in Container"} > 0
+    for: 0m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Shell spawned in container"
+      description: "Interactive shell detected in container"</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🔍 Audit Logging</h3>
+                    
+                    <h4>Enable API Server Audit Logging:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+# Log secret access
+- level: Metadata
+  resources:
+  - group: ""
+    resources: ["secrets"]
+  
+# Log privilege escalation attempts
+- level: RequestResponse
+  verbs: ["create", "update", "patch"]
+  resources:
+  - group: ""
+    resources: ["pods"]
+  - group: "apps"
+    resources: ["deployments"]
+  namespaces: ["production", "staging"]
+
+# Log admin actions
+- level: Request
+  users: ["system:admin"]
+  
+# Log failed authentication
+- level: Metadata
+  omitStages:
+  - RequestReceived</pre>
+                    </div>
+
+                    <h4>Configure API Server:</h4>
+                    <div class="command-box">--audit-log-path=/var/log/kubernetes/audit.log</div>
+                    <div class="command-box">--audit-policy-file=/etc/kubernetes/audit-policy.yaml</div>
+                    <div class="command-box">--audit-log-maxage=30</div>
+                </div>
+
+                <div class="subsection">
+                    <h3>📱 Alerting and Notifications</h3>
+                    
+                    <h4>Slack Integration:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: monitoring
+data:
+  alertmanager.yml: |
+    global:
+      slack_api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+    
+    route:
+      group_by: ['alertname']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 1h
+      receiver: 'security-team'
+      
+    receivers:
+    - name: 'security-team'
+      slack_configs:
+      - channel: '#security-alerts'
+        title: 'Kubernetes Security Alert'
+        text: >
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          {{ end }}</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🛠️ Monitoring Tools Commands</h3>
+                    
+                    <h4>Falco Commands:</h4>
+                    <div class="command-box">kubectl logs -f -n falco-system -l app=falco</div>
+                    <div class="command-box">kubectl port-forward -n falco-system svc/falco 8765:8765</div>
+                    
+                    <h4>Check Security Events:</h4>
+                    <div class="command-box">kubectl get events --sort-by=.metadata.creationTimestamp</div>
+                    <div class="command-box">kubectl top pods --containers</div>
+                    
+                    <h4>Audit Log Analysis:</h4>
+                    <div class="command-box">grep "secrets" /var/log/kubernetes/audit.log | jq .</div>
+                    <div class="command-box">grep "Forbidden" /var/log/kubernetes/audit.log</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Regular Upgrades -->
+        <div id="upgrades" class="section">
+            <div class="section-header">
+                <span class="icon">🔄</span>
+                7. Frequent Upgrades & Patch Management
+                <span class="priority-badge">ESSENTIAL</span>
+            </div>
+            <div class="section-content">
+                <div class="subsection">
+                    <h3>🎯 Why Upgrades Matter</h3>
+                    <p>Attackers constantly discover new vulnerabilities. <strong>Patching is your defense</strong> against known exploits. Running old versions is like leaving doors unlocked.</p>
+                    
+                    <div class="warning-box">
+                        <span class="warning-icon">⚠️</span>
+                        <div>
+                            <strong>Version Support:</strong> Kubernetes maintains only the latest 3 minor versions. If you're running older versions, you're missing critical security patches!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🔍 Current Version Status</h3>
+                    
+                    <h4>Check Cluster Version:</h4>
+                    <div class="command-box">kubectl version --short</div>
+                    <div class="command-box">kubectl get nodes -o wide</div>
+                    
+                    <h4>Check Component Versions:</h4>
+                    <div class="command-box">kubectl get pods -n kube-system -o wide</div>
+                    <div class="command-box">kubeadm version</div>
+                    
+                    <h4>Check for Updates:</h4>
+                    <div class="command-box">kubeadm upgrade plan</div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🚀 Kubernetes Upgrade Process</h3>
+                    
+                    <h4>1. Backup Everything:</h4>
+                    <div class="command-box">kubectl get all --all-namespaces -o yaml > cluster-backup.yaml</div>
+                    <div class="command-box">sudo etcdctl snapshot save backup.db</div>
+                    
+                    <h4>2. Upgrade Control Plane:</h4>
+                    <div class="command-box">sudo kubeadm upgrade apply v1.28.0</div>
+                    
+                    <h4>3. Upgrade kubelet and kubectl:</h4>
+                    <div class="command-box">sudo apt-mark unhold kubelet kubectl && sudo apt update && sudo apt install -y kubelet=1.28.0-00 kubectl=1.28.0-00</div>
+                    <div class="command-box">sudo apt-mark hold kubelet kubectl</div>
+                    
+                    <h4>4. Restart kubelet:</h4>
+                    <div class="command-box">sudo systemctl daemon-reload && sudo systemctl restart kubelet</div>
+                    
+                    <h4>5. Upgrade Worker Nodes:</h4>
+                    <div class="command-box">kubectl drain node-name --ignore-daemonsets</div>
+                    <div class="command-box">sudo kubeadm upgrade node</div>
+                    <div class="command-box">kubectl uncordon node-name</div>
+                </div>
+
+                <div class="subsection">
+                    <h3>📦 Component Updates</h3>
+                    
+                    <h4>Update Container Runtime (containerd):</h4>
+                    <div class="command-box">sudo apt update && sudo apt install -y containerd.io</div>
+                    <div class="command-box">sudo systemctl restart containerd</div>
+                    
+                    <h4>Update CNI Plugin:</h4>
+                    <div class="command-box">kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml</div>
+                    
+                    <h4>Update Ingress Controller:</h4>
+                    <div class="command-box">helm upgrade nginx-ingress ingress-nginx/ingress-nginx -n ingress-nginx</div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🤖 Automated Update Strategies</h3>
+                    
+                    <h4>Node Auto-Scaling with Latest AMIs:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-autoscaler-status
+  namespace: kube-system
+data:
+  upgrade-strategy: "rolling"
+  max-node-provision-time: "15m"
+  scale-down-delay-after-add: "10m"</pre>
+                    </div>
+
+                    <h4>Renovate Bot for Helm Charts:</h4>
+                    <div class="code-block" data-lang="JSON">
+<pre>{
+  "extends": ["config:base"],
+  "kubernetes": {
+    "fileMatch": ["k8s/**/*.yaml"]
+  },
+  "helm-values": {
+    "fileMatch": ["helm/**/*.yaml"]
+  },
+  "schedule": ["before 6am on monday"]
+}</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>📋 Upgrade Checklist & Best Practices</h3>
+                    
+                    <div class="security-checklist">
+                        <h4>✅ Pre-Upgrade Checklist</h4>
+                        <div class="checklist-item">
+                            <span class="checkmark">✓</span>
+                            <span>Full cluster backup (etcd + resources)</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="checkmark">✓</span>
+                            <span>Test upgrade in staging environment</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="checkmark">✓</span>
+                            <span>Review breaking changes in release notes</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="checkmark">✓</span>
+                            <span>Plan rollback strategy</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="checkmark">✓</span>
+                            <span>Schedule maintenance window</span>
+                        </div>
+                    </div>
+
+                    <div class="security-checklist">
+                        <h4>✅ Post-Upgrade Validation</h4>
+                        <div class="checklist-item">
+                            <span class="checkmark">✓</span>
+                            <span>All nodes are Ready</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="checkmark">✓</span>
+                            <span>All pods are running</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="checkmark">✓</span>
+                            <span>Applications are responsive</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="checkmark">✓</span>
+                            <span>Security policies still enforced</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="checkmark">✓</span>
+                            <span>Monitoring and alerts working</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>📅 Maintenance Schedule</h3>
+                    
+                    <div style="background: #f5f5f5; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4>Recommended Update Frequency:</h4>
+                        <ul>
+                            <li><strong>Critical Security Patches:</strong> Within 24-48 hours</li>
+                            <li><strong>Kubernetes Minor Versions:</strong> Within 3 months of release</li>
+                            <li><strong>Component Updates:</strong> Monthly</li>
+                            <li><strong>Node OS Updates:</strong> Bi-weekly</li>
+                            <li><strong>Container Base Images:</strong> Weekly</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. Advanced Security (2025 Trends) -->
+        <div id="advanced" class="section">
+            <div class="section-header">
+                <span class="icon">⚡</span>
+                Advanced Security & 2025 Trends
+                <span class="priority-badge">CUTTING EDGE</span>
+            </div>
+            <div class="section-content">
+                <div class="subsection">
+                    <h3>🎯 2025 Kubernetes Security Trends</h3>
+                    
+                    <div class="trend-card">
+                        <h4>🛡️ Zero Trust Architecture</h4>
+                        <p><strong>"Never trust, always verify"</strong> - Implement micro-segmentation, least-privilege access, and continuous verification for every component.</p>
+                    </div>
+
+                    <div class="trend-card">
+                        <h4>🔗 Supply Chain Security</h4>
+                        <p>Code signing, provenance tracking, and SBOM (Software Bill of Materials) to ensure container integrity from build to runtime.</p>
+                    </div>
+
+                    <div class="trend-card">
+                        <h4>🤖 AI-Powered Security</h4>
+                        <p>Machine learning for anomaly detection, automated threat response, and intelligent security policy generation.</p>
+                    </div>
+
+                    <div class="trend-card">
+                        <h4>☁️ Cloud-Native Security Platforms</h4>
+                        <p>CNAPP (Cloud-Native Application Protection Platforms) providing unified security across the entire cloud-native stack.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🔐 Pod Security Standards & Admission Controllers</h3>
+                    
+                    <h4>Pod Security Standards (PSS):</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre># Restricted namespace configuration
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: secure-workloads
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted</pre>
+                    </div>
+
+                    <h4>Custom Admission Controller:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionWebhook
+metadata:
+  name: security-policy-webhook
+webhooks:
+- name: validate-security.example.com
+  clientConfig:
+    service:
+      name: security-webhook
+      namespace: security-system
+      path: "/validate"
+  rules:
+  - operations: ["CREATE", "UPDATE"]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+  admissionReviewVersions: ["v1"]</pre>
+                    </div>
+
+                    <h4>Gatekeeper (OPA) Policy:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredsecuritycontexts
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredSecurityContexts
+      validation:
+        properties:
+          runAsNonRoot:
+            type: boolean
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredsecuritycontexts
+        
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not container.securityContext.runAsNonRoot
+          msg := "Container must run as non-root user"
+        }</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🔍 Advanced Scanning & SBOM</h3>
+                    
+                    <h4>Generate Software Bill of Materials:</h4>
+                    <div class="command-box">syft packages docker:nginx:latest -o spdx-json</div>
+                    <div class="command-box">trivy image --format spdx-json nginx:latest > nginx-sbom.json</div>
+                    
+                    <h4>Vulnerability Scanning with SBOM:</h4>
+                    <div class="command-box">grype sbom:nginx-sbom.json</div>
+                    
+                    <h4>Image Signing with Cosign:</h4>
+                    <div class="command-box">cosign generate-key-pair</div>
+                    <div class="command-box">cosign sign --key cosign.key myregistry/myimage:tag</div>
+                    <div class="command-box">cosign verify --key cosign.pub myregistry/myimage:tag</div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🌐 Service Mesh Security</h3>
+                    
+                    <h4>Istio Security Configuration:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: production
+spec:
+  mtls:
+    mode: STRICT
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: frontend-authz
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/production/sa/api-service"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+        paths: ["/api/*"]</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🛡️ eBPF-based Security</h3>
+                    
+                    <h4>Cilium Network Security:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: l7-policy
+spec:
+  endpointSelector:
+    matchLabels:
+      app: api
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: frontend
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+      rules:
+        http:
+        - method: "GET"
+          path: "/api/v1/.*"</pre>
+                    </div>
+
+                    <h4>Tetragon Runtime Security:</h4>
+                    <div class="command-box">kubectl apply -f https://raw.githubusercontent.com/cilium/tetragon/main/install/kubernetes/tetragon.yaml</div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🤖 GitOps Security</h3>
+                    
+                    <h4>ArgoCD Security Configuration:</h4>
+                    <div class="code-block" data-lang="YAML">
+<pre>apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cmd-params-cm
+  namespace: argocd
+data:
+  server.disable.auth: "false"
+  server.enable.grpc.web: "true"
+  application.instanceLabelKey: argocd.argoproj.io/instance
+  
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: production
+  namespace: argocd
+spec:
+  description: Production applications
+  sourceRepos:
+  - https://github.com/company/k8s-manifests
+  destinations:
+  - namespace: production
+    server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+  - group: ''
+    kind: Namespace
+  roles:
+  - name: prod-admin
+    policies:
+    - p, proj:production:prod-admin, applications, *, production/*, allow
+    groups:
+    - company:production-team</pre>
+                    </div>
+                </div>
+
+                <div class="security-checklist">
+                    <h4>✅ Advanced Security Checklist</h4>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Pod Security Standards implemented</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Admission controllers configured</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Image signing and verification</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>SBOM generation and tracking</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Service mesh security (if applicable)</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>GitOps security practices</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="checkmark">✓</span>
+                        <span>Zero Trust principles applied</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Summary -->
+        <div class="section">
+            <div class="section-header">
+                <span class="icon">🏆</span>
+                Security Summary & Final Thoughts
+            </div>
+            <div class="section-content">
+                <div class="subsection">
+                    <h3>🎯 Key Takeaways</h3>
+                    <p>Kubernetes security is <strong>not optional</strong> - it's essential for protecting your applications, data, and infrastructure. Remember:</p>
+                    
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; margin: 1.5rem 0;">
+                        <h4>🛡️ Defense in Depth</h4>
+                        <p>No single security measure is enough. Layer multiple security controls to create a robust defense system.</p>
+                        
+                        <h4>🔄 Continuous Security</h4>
+                        <p>Security is not a one-time setup. Continuously monitor, update, and improve your security posture.</p>
+                        
+                        <h4>👥 Team Responsibility</h4>
+                        <p>Security is everyone's responsibility - from developers writing code to operators managing clusters.</p>
+                        
+                        <h4>📚 Stay Updated</h4>
+                        <p>Kubernetes security landscape evolves rapidly. Stay informed about new threats and best practices.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3>🚀 Next Steps</h3>
+                    <ol style="padding-left: 2rem; line-height: 2;">
+                        <li><strong>Assess Current State:</strong> Audit your existing cluster security</li>
+                        <li><strong>Prioritize Fixes:</strong> Start with critical issues (API server, RBAC)</li>
+                        <li><strong>Implement Monitoring:</strong> Set up Falco and security alerting</li>
+                        <li><strong>Automate Security:</strong> Integrate scanning into CI/CD pipelines</li>
+                        <li><strong>Plan Regular Reviews:</strong> Schedule monthly security assessments</li>
+                        <li><strong>Train Your Team:</strong> Ensure everyone understands security practices</li>
+                    </ol>
+                </div>
+
+                <div class="subsection">
+                    <h3>📖 Additional Resources</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div style="background: #f5f5f5; padding: 1rem; border-radius: 8px;">
+                            <h4>📚 Documentation</h4>
+                            <ul>
+                                <li>Kubernetes Security Documentation</li>
+                                <li>CIS Kubernetes Benchmark</li>
+                                <li>NIST Container Security Guide</li>
+                            </ul>
+                        </div>
+                        <div style="background: #f5f5f5; padding: 1rem; border-radius: 8px;">
+                            <h4>🛠️ Tools</h4>
+                            <ul>
+                                <li>kube-bench (CIS compliance)</li>
+                                <li>kube-hunter (penetration testing)</li>
+                                <li>Polaris (configuration validation)</li>
+                            </ul>
+                        </div>
+                        <div style="background: #f5f5f5; padding: 1rem; border-radius: 8px;">
+                            <h4>🎓 Learning</h4>
+                            <ul>
+                                <li>CKS (Certified Kubernetes Security Specialist)</li>
+                                <li>CKAD with security focus</li>
+                                <li>Cloud security certifications</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #4CAF50, #45a049); color: white; padding: 2rem; border-radius: 12px; text-align: center; margin: 2rem 0;">
+                    <h3>🎉 You're Now Ready to Secure Kubernetes Like a Pro!</h3>
+                    <p>Remember: <strong>Security is a journey, not a destination.</strong></p>
+                    <p>Keep learning, keep improving, and keep your clusters secure! 🛡️</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-top" onclick="scrollToTop()">↑</div>
+
+    <script>
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ 
+                top: 0, 
+                behavior: 'smooth' 
+            });
+        }
+
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', function() {
+            const scrollTop = document.querySelector('.scroll-top');
+            if (window.pageYOffset > 100) {
+                scrollTop.style.display = 'block';
+            } else {
+                scrollTop.style.display = 'none';
+            }
+        });
+
+        // Add smooth scroll behavior for navigation cards
+        document.querySelectorAll('.nav-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetSection = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                scrollToSection(targetSection);
+            });
+        });
+    </script>
+</body>
+</html>
