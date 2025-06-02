@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Container vs Pod Architecture</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 6px solid #3498db;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .docker-container {
+            background: linear-gradient(135deg, #0db7ed, #0db7ed);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .docker-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .pod-container {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .multi-container-pod {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+        }
+        
+        .containers-in-pod {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .mini-container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+        }
+        
+        .shared-resources {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .command-line {
+            background: #2c3e50;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .yaml-manifest {
+            background: #34495e;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+        
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .arrow {
+            text-align: center;
+            font-size: 2em;
+            color: #3498db;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐳 Container vs Pod Architecture</h1>
+        
+        <div class="comparison">
+            <div class="section">
+                <h2>🐳 Docker Container</h2>
+                <div class="docker-container">
+                    <strong>Single Container Instance</strong>
+                    <p>Run with command-line options</p>
+                </div>
+                
+                <div class="command-line">
+                    $ docker run -it -d -p 8080:80 -v /data:/app --network mynet nginx
+                </div>
+                
+                <p><strong>Characteristics:</strong></p>
+                <ul>
+                    <li>Single container per instance</li>
+                    <li>Command-line configuration</li>
+                    <li>Manual port, volume, network setup</li>
+                    <li>No built-in orchestration</li>
+                </ul>
+            </div>
+            
+            <div class="section">
+                <h2>☸️ Kubernetes Pod</h2>
+                <div class="pod-container">
+                    <strong>Pod with Single Container</strong>
+                    <p>Defined via YAML manifest</p>
+                </div>
+                
+                <div class="yaml-manifest">
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+                </div>
+                
+                <p><strong>Enterprise Model:</strong></p>
+                <ul>
+                    <li>YAML-based configuration</li>
+                    <li>Declarative approach</li>
+                    <li>Built-in networking & storage</li>
+                    <li>Can contain multiple containers</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="arrow">⬇️ Pod's Advanced Capability ⬇️</div>
+        
+        <div class="multi-container-pod">
+            <h3>🔗 Multi-Container Pod</h3>
+            <p>Multiple containers sharing the same Pod environment</p>
+            
+            <div class="containers-in-pod">
+                <div class="mini-container">
+                    <strong>Main App</strong><br>
+                    Web Server
+                </div>
+                <div class="mini-container">
+                    <strong>Sidecar</strong><br>
+                    Log Collector
+                </div>
+                <div class="mini-container">
+                    <strong>Helper</strong><br>
+                    Config Updater
+                </div>
+            </div>
+            
+            <div class="shared-resources">
+                <strong>🌐 Shared Network:</strong> Communicate via localhost<br>
+                <strong>💾 Shared Storage:</strong> Common volumes and file systems
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="icon">🔄</div>
+                <h3>Service Mesh Pattern</h3>
+                <p>Sidecar containers for traffic management, security, and observability</p>
+            </div>
+            
+            <div class="feature">
+                <div class="icon">📊</div>
+                <h3>Monitoring & Logging</h3>
+                <p>Helper containers for metrics collection and log aggregation</p>
+            </div>
+            
+            <div class="feature">
+                <div class="icon">🔧</div>
+                <h3>Configuration Management</h3>
+                <p>Init containers and sidecars for dynamic configuration updates</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
