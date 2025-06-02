@@ -3,7 +3,7 @@
 A comprehensive collection of Kubernetes guides and tutorials created by Mohd Abdul Jameel, inspired by Abhishek Veeramalla's YouTube channel.
 
 ## 🚀 Live Website
-Visit: `https://majameel.github.io/Kubernetes-Zero-to-Hero/`
+Visit: [Kubernetes Zero to Hero by Jameel](https://majameel.github.io/Kubernetes-Zero-to-Hero/)
 
 ## 📚 What's Included
 - Complete Kubernetes fundamentals
