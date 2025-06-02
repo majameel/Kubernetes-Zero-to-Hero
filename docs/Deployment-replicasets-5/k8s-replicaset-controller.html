@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReplicaSet Controller</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 50%, #74b9ff 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2d3436;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .controller-concept {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .controller-concept h2 {
+            margin-top: 0;
+            font-size: 2em;
+        }
+        
+        .state-comparison {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 30px;
+            align-items: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 3px solid #74b9ff;
+        }
+        
+        .state-box {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .state-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 4s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .desired-state {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+        }
+        
+        .actual-state {
+            background: linear-gradient(135deg, #e17055, #fab1a0);
+        }
+        
+        .vs-arrow {
+            font-size: 3em;
+            color: #2d3436;
+            text-align: center;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .scenarios {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .scenario {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #74b9ff;
+            transition: all 0.3s ease;
+        }
+        
+        .scenario:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .scenario h3 {
+            color: #2d3436;
+            margin-top: 0;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .pod-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .pod {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .pod:hover {
+            transform: scale(1.05);
+        }
+        
+        .pod.dead {
+            background: linear-gradient(135deg, #d63031, #e17055);
+            opacity: 0.7;
+            text-decoration: line-through;
+        }
+        
+        .pod.creating {
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        .action-flow {
+            background: linear-gradient(135deg, #e84393, #fd79a8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .step {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .step-number {
+            background: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .kubectl-demo {
+            background: #2d3436;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        .kubectl-demo .command {
+            color: #74b9ff;
+        }
+        
+        .kubectl-demo .output {
+            color: #00cec9;
+            margin-left: 20px;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .scaling-demo {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .scaling-demo h3 {
+            margin-top: 0;
+            font-size: 1.8em;
+            text-align: center;
+        }
+        
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .scale-arrow {
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        .replica-count {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .replica-count h4 {
+            margin-top: 0;
+            font-size: 1.3em;
+        }
+        
+        .yaml-change {
+            background: #2d3436;
+            color: #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            border-left: 4px solid #00b894;
+        }
+        
+        .changed-line {
+            background: rgba(0, 184, 148, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 ReplicaSet Controller: The State Guardian</h1>
+        
+        <div class="controller-concept">
+            <h2>🤖 What is a Kubernetes Controller?</h2>
+            <p>A Kubernetes Controller is a control loop that watches the state of your cluster, then makes or requests changes where needed. Each controller tries to move the current cluster state closer to the desired state.</p>
+        </div>
+        
+        <div class="state-comparison">
+            <div class="state-box desired-state">
+                <h3>🎯 Desired State</h3>
+                <p>What you want (defined in YAML)</p>
+                <div style="font-size: 2em; margin: 10px 0;">3 Pods</div>
+                <p>replicas: 3</p>
+            </div>
+            
+            <div class="vs-arrow">⚔️<br>VS<br>🔍</div>
+            
+            <div class="state-box actual-state">
+                <h3>📊 Actual State</h3>
+                <p>What currently exists in cluster</p>
+                <div style="font-size: 2em; margin: 10px 0;">? Pods</div>
+                <p>ReplicaSet monitors this</p>
+            </div>
+        </div>
+        
+        <div class="highlight">
+            💡 <strong>ReplicaSet's Job:</strong> Continuously ensure Desired State = Actual State
+        </div>
+        
+        <div class="scenarios">
+            <div class="scenario">
+                <h3>🚨 Auto-healing Scenario</h3>
+                <p><strong>Initial State:</strong> 3 pods running (desired: 3)</p>
+                
+                <div class="pod-grid">
+                    <div class="pod">Pod-1</div>
+                    <div class="pod">Pod-2</div>
+                    <div class="pod">Pod-3</div>
+                </div>
+                
+                <p><strong>❌ Problem:</strong> User deletes Pod-2</p>
+                
+                <div class="pod-grid">
+                    <div class="pod">Pod-1</div>
+                    <div class="pod dead">Pod-2</div>
+                    <div class="pod">Pod-3</div>
+                </div>
+                
+                <div class="action-flow">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div>ReplicaSet detects: Actual (2) ≠ Desired (3)</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div>Controller triggers pod creation</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div>New pod starts automatically</div>
+                    </div>
+                </div>
+                
+                <p><strong>✅ Result:</strong> State restored automatically</p>
+                
+                <div class="pod-grid">
+                    <div class="pod">Pod-1</div>
+                    <div class="pod creating">Pod-4</div>
+                    <div class="pod">Pod-3</div>
+                </div>
+            </div>
+            
+            <div class="scenario">
+                <h3>📈 Auto-scaling Scenario</h3>
+                <p><strong>Initial State:</strong> 2 pods running (desired: 2)</p>
+                
+                <div class="pod-grid">
+                    <div class="pod">Pod-1</div>
+                    <div class="pod">Pod-2</div>
+                </div>
+                
+                <p><strong>🔄 Change:</strong> Update replicas: 2 → 5</p>
+                
+                <div class="yaml-change">
+spec:
+  <span class="changed-line">replicas: 5  # Changed from 2</span>
+  selector:
+    matchLabels:
+      app: nginx
+                </div>
+                
+                <div class="action-flow">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div>ReplicaSet detects: Actual (2) ≠ Desired (5)</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div>Controller creates 3 additional pods</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div>All pods start in parallel</div>
+                    </div>
+                </div>
+                
+                <p><strong>✅ Result:</strong> Scale-out completed</p>
+                
+                <div class="pod-grid">
+                    <div class="pod">Pod-1</div>
+                    <div class="pod">Pod-2</div>
+                    <div class="pod creating">Pod-3</div>
+                    <div class="pod creating">Pod-4</div>
+                    <div class="pod creating">Pod-5</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scaling-demo">
+            <h3>📊 Scaling Demonstration</h3>
+            <p>Watch how ReplicaSet handles scaling operations:</p>
+            
+            <div class="before-after">
+                <div class="replica-count">
+                    <h4>Before (replicas: 1)</h4>
+                    <div class="pod-grid">
+                        <div class="pod">nginx-pod-abc123</div>
+                    </div>
+                </div>
+                
+                <div class="scale-arrow">➡️<br>Scale<br>➡️</div>
+                
+                <div class="replica-count">
+                    <h4>After (replicas: 3)</h4>
+                    <div class="pod-grid">
+                        <div class="pod">nginx-pod-abc123</div>
+                        <div class="pod">nginx-pod-def456</div>
+                        <div class="pod">nginx-pod-ghi789</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="kubectl-demo">
+<span class="command">$ kubectl apply -f deployment.yaml</span>
+<span class="output">deployment.apps/nginx-deployment configured</span>
+
+<span class="command">$ kubectl get pods -w</span>
+<span class="output">NAME                               READY   STATUS    RESTARTS   AGE
+nginx-deployment-abc123            1/1     Running   0          2m
+nginx-deployment-def456            0/1     Pending   0          0s
+nginx-deployment-ghi789            0/1     Pending   0          0s
+nginx-deployment-def456            1/1     Running   0          5s
+nginx-deployment-ghi789            1/1     Running   0          7s</span>
+            </div>
+        </div>
+        
+        <div class="highlight">
+            🎯 <strong>Key Takeaway:</strong> ReplicaSet is the "brain" behind auto-healing and auto-scaling.<br>
+            Deployment is just a high-level abstraction - ReplicaSet does all the heavy lifting!
+        </div>
+        
+        <div class="kubectl-demo">
+<span class="command"># Check the relationship</span>
+<span class="command">$ kubectl get deploy,rs,pods</span>
+<span class="output">NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/nginx-deployment   3/3     3            3           5m
+
+NAME                                         DESIRED   CURRENT   READY   AGE
+replicaset.apps/nginx-deployment-7d4b8c5    3         3         3       5m
+
+NAME                                   READY   STATUS    RESTARTS   AGE
+pod/nginx-deployment-7d4b8c5-abc123   1/1     Running   0          5m
+pod/nginx-deployment-7d4b8c5-def456   1/1     Running   0          3m
+pod/nginx-deployment-7d4b8c5-ghi789   1/1     Running   0          3m</span>
+        </div>
+    </div>
+</body>
+</html>
