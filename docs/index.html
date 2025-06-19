@@ -15,57 +15,68 @@
         body {
             font-family: 'Segoe UI', Taurus, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #e0e6ed;
+            background: linear-gradient(135deg, #0f1419 0%, #1a1f3a 50%, #0d1421 100%);
             min-height: 100vh;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
 
         header {
             text-align: center;
-            padding: 60px 0;
-            color: white;
+            padding: 40px 0 60px;
+            color: #ffffff;
         }
 
         .logo {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             margin: 0 auto 20px;
             border-radius: 50%;
             overflow: hidden;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 4px solid rgba(59, 130, 246, 0.5);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
         }
 
         .logo img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            background: white;
-            padding: 10px;
+            background: #1e293b;
+            padding: 15px;
         }
 
         h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .subtitle {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3vw, 1.3rem);
             opacity: 0.9;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            color: #cbd5e1;
         }
 
         .author {
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
             opacity: 0.8;
             font-style: italic;
+            color: #94a3b8;
         }
 
         .search-container {
@@ -78,18 +89,24 @@
             width: 100%;
             padding: 15px 50px 15px 20px;
             font-size: 16px;
-            border: none;
+            border: 2px solid rgba(59, 130, 246, 0.3);
             border-radius: 50px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(30, 41, 59, 0.8);
             backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             outline: none;
             transition: all 0.3s ease;
+            color: #e0e6ed;
+        }
+
+        .search-box::placeholder {
+            color: #94a3b8;
         }
 
         .search-box:focus {
-            background: rgba(255, 255, 255, 1);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            background: rgba(30, 41, 59, 0.95);
+            border-color: #3b82f6;
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
         }
 
         .search-icon {
@@ -97,21 +114,22 @@
             right: 20px;
             top: 50%;
             transform: translateY(-50%);
-            color: #666;
+            color: #64748b;
         }
 
         .guides-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: clamp(20px, 5vw, 40px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             margin-top: 40px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
         }
 
         .section-title {
-            font-size: 2rem;
-            color: #333;
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            color: #ffffff;
             margin-bottom: 30px;
             text-align: center;
             position: relative;
@@ -120,31 +138,92 @@
         .section-title::after {
             content: '';
             width: 100px;
-            height: 3px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 4px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             position: absolute;
-            bottom: -10px;
+            bottom: -15px;
             left: 50%;
             transform: translateX(-50%);
             border-radius: 2px;
         }
 
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .toc-section {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .toc-section h3 {
+            color: #60a5fa;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .toc-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .toc-section li {
+            padding: 8px 0;
+            color: #cbd5e1;
+            position: relative;
+            padding-left: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .toc-section li:hover {
+            color: #60a5fa;
+            transform: translateX(5px);
+        }
+
+        .toc-section li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: #3b82f6;
+            font-size: 0.8rem;
+        }
+
+        .toc-section a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .toc-section a:hover {
+            color: #60a5fa;
+        }
+
         .guides-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 25px;
             margin-top: 40px;
         }
 
         .guide-card {
-            background: white;
-            border-radius: 15px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
             transition: all 0.3s ease;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(59, 130, 246, 0.2);
             position: relative;
             overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .guide-card.visible {
+            animation: fadeInUp 0.6s ease forwards;
         }
 
         .guide-card::before {
@@ -154,74 +233,96 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
         }
 
         .guide-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
         }
 
         .guide-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 12px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .guide-card:hover .guide-icon {
+            transform: scale(1.1);
         }
 
         .guide-icon i {
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
         }
 
         .guide-title {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: 600;
-            margin-bottom: 10px;
-            color: #333;
+            margin-bottom: 12px;
+            color: #ffffff;
         }
 
         .guide-description {
-            color: #666;
-            margin-bottom: 15px;
+            color: #cbd5e1;
+            margin-bottom: 20px;
             font-size: 0.95rem;
+            line-height: 1.6;
         }
 
         .guide-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-size: 0.85rem;
-            color: #888;
+            color: #94a3b8;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .guide-size {
-            background: #f0f0f0;
-            padding: 4px 8px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            padding: 6px 12px;
             border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .github-link {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .github-link:hover {
+            color: #60a5fa;
         }
 
         .guide-link {
             display: inline-flex;
             align-items: center;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             color: white;
             text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 25px;
+            padding: 14px 24px;
+            border-radius: 30px;
             font-weight: 500;
             transition: all 0.3s ease;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            width: fit-content;
         }
 
         .guide-link:hover {
             transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
 
         .guide-link i {
@@ -236,53 +337,60 @@
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(10px);
-            padding: 25px;
-            border-radius: 15px;
+            padding: 30px;
+            border-radius: 20px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
 
         .stat-number {
-            font-size: 2.5rem;
+            font-size: clamp(2rem, 4vw, 2.8rem);
             font-weight: bold;
-            color: #667eea;
-            margin-bottom: 5px;
+            color: #60a5fa;
+            margin-bottom: 8px;
         }
 
         .stat-label {
-            color: #666;
+            color: #cbd5e1;
             font-weight: 500;
+            font-size: 1.1rem;
         }
 
         footer {
             text-align: center;
-            padding: 40px 0;
-            color: rgba(255, 255, 255, 0.8);
-            margin-top: 60px;
+            padding: 60px 0 40px;
+            color: #cbd5e1;
+            margin-top: 80px;
         }
 
         .social-links {
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
         .social-links a {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.5rem;
+            color: #94a3b8;
+            font-size: 1.8rem;
             margin: 0 15px;
             transition: all 0.3s ease;
         }
 
         .social-links a:hover {
-            color: white;
-            transform: translateY(-2px);
+            color: #60a5fa;
+            transform: translateY(-3px);
         }
 
         .no-results {
             text-align: center;
-            padding: 40px;
-            color: #666;
+            padding: 60px;
+            color: #94a3b8;
             display: none;
         }
 
@@ -292,55 +400,45 @@
             opacity: 0.5;
         }
 
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .guides-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .container {
-                padding: 10px;
-            }
-            
-            .guides-container {
-                padding: 20px;
-            }
-        }
-
         .creators-section {
             display: flex;
             justify-content: center;
-            gap: 40px;
-            margin-top: 40px;
+            gap: 30px;
+            margin-top: 50px;
             flex-wrap: wrap;
         }
 
         .creator-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
             transition: all 0.3s ease;
-            min-width: 200px;
+            min-width: 280px;
+            max-width: 320px;
         }
 
         .creator-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-8px);
+            background: rgba(30, 41, 59, 0.8);
+            border-color: #3b82f6;
         }
 
         .creator-image {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
             border-radius: 50%;
             overflow: hidden;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 4px solid rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .creator-card:hover .creator-image {
+            border-color: #3b82f6;
+            transform: scale(1.05);
         }
 
         .creator-image img {
@@ -350,56 +448,264 @@
         }
 
         .creator-info h3 {
-            color: white;
-            margin-bottom: 5px;
-            font-size: 1.1rem;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-size: 1.3rem;
         }
 
         .creator-info p {
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 15px;
-            font-size: 0.9rem;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .creator-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
         }
 
         .social-link {
             display: inline-flex;
             align-items: center;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
             text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
+            min-width: 140px;
+            justify-content: center;
         }
 
         .social-link:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(59, 130, 246, 0.3);
             transform: translateY(-2px);
+            color: #ffffff;
+        }
+
+        .social-link i {
+            margin-right: 8px;
         }
 
         .step-number {
             position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            top: -12px;
+            right: -12px;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-            border: 3px solid white;
+            font-size: 1.3rem;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+            border: 4px solid rgba(15, 23, 42, 1);
+            z-index: 10;
         }
 
-        .highlight {
-            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
-            padding: 2px 4px;
-            border-radius: 3px;
+        /* Floating Action Buttons */
+        .floating-actions {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .like-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            position: relative;
+        }
+
+        .like-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(239, 68, 68, 0.4);
+        }
+
+        .like-btn.liked {
+            animation: heartBeat 0.6s ease;
+        }
+
+        .like-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ffffff;
+            color: #dc2626;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: 2px solid #dc2626;
+        }
+
+        .about-btn {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        .about-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.4);
+        }
+
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            header {
+                padding: 30px 0 40px;
+            }
+
+            .logo {
+                width: 90px;
+                height: 90px;
+            }
+
+            .guides-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .guide-card {
+                padding: 20px;
+            }
+
+            .guides-container {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .creators-section {
+                gap: 20px;
+            }
+
+            .creator-card {
+                min-width: 250px;
+                padding: 25px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .stat-card {
+                padding: 25px;
+            }
+
+            .step-number {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+                top: -10px;
+                right: -10px;
+            }
+
+            .floating-actions {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .floating-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .like-count {
+                width: 20px;
+                height: 20px;
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .guide-card {
+                padding: 16px;
+            }
+
+            .guide-icon {
+                width: 50px;
+                height: 50px;
+            }
+
+            .guide-icon i {
+                font-size: 1.5rem;
+            }
+
+            .guide-title {
+                font-size: 1.2rem;
+            }
+
+            .guide-link {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+
+            .creator-card {
+                min-width: 220px;
+                padding: 20px;
+            }
+
+            .creator-image {
+                width: 80px;
+                height: 80px;
+            }
         }
     </style>
 </head>
@@ -407,7 +713,7 @@
     <div class="container">
         <header>
             <div class="logo">
-                <img src="assets/images/k8.png" alt="Kubernetes" />
+                <img src="https://kubernetes.io/images/kubernetes-horizontal-color.png" alt="Kubernetes" />
             </div>
             <h1>Kubernetes Zero to Hero</h1>
             <p class="subtitle">Complete Learning Guide & Documentation</p>
@@ -417,31 +723,43 @@
             <div class="creators-section">
                 <div class="creator-card">
                     <div class="creator-image">
-                        <img src="assets/images/mohd-abdul-jameel.png" alt="Mohd Abdul Jameel" />
+                        <img src="https://via.placeholder.com/100x100/3b82f6/ffffff?text=MAJ" alt="Mohd Abdul Jameel" />
                     </div>
                     <div class="creator-info">
                         <h3>Mohd Abdul Jameel</h3>
                         <p>Creator & Author</p>
-                        <a href="https://www.linkedin.com/in/mohd-abdul-jameel-305ax25/" target="_blank" class="social-link">
-                            <i class="fab fa-linkedin"></i> LinkedIn
-                        </a>
+                        <div class="creator-links">
+                            <a href="https://www.linkedin.com/in/mohd-abdul-jameel-305ax25/" target="_blank" class="social-link">
+                                <i class="fab fa-linkedin"></i> LinkedIn
+                            </a>
+                            <a href="https://majameel.github.io" target="_blank" class="social-link">
+                                <i class="fas fa-user-circle"></i> Portfolio
+                            </a>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="creator-card">
                     <div class="creator-image">
-                        <img src="assets/images/abhishek-veeramalla.png" alt="Abhishek Veeramalla" />
+                        <img src="https://via.placeholder.com/100x100/8b5cf6/ffffff?text=AV" alt="Abhishek Veeramalla" />
                     </div>
                     <div class="creator-info">
                         <h3>Abhishek Veeramalla</h3>
                         <p>Reference & Inspiration</p>
-                        <a href="https://www.youtube.com/@AbhishekVeeramalla" target="_blank" class="social-link">
-                            <i class="fab fa-youtube"></i> YouTube
-                        </a>
+                        <div class="creator-links">
+                            <a href="https://www.youtube.com/@AbhishekVeeramalla" target="_blank" class="social-link">
+                                <i class="fab fa-youtube"></i> YouTube
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </header>
+
+        <div class="search-container">
+            <input type="text" class="search-box" placeholder="Search guides... (e.g., 'pods', 'services', 'security')" id="searchInput">
+            <i class="fas fa-search search-icon"></i>
+        </div>
 
         <div class="stats">
             <div class="stat-card">
@@ -449,12 +767,12 @@
                 <div class="stat-label">Step-by-Step Guides</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">Share and</div>
-                <div class="stat-label">Bookmark</div>
+                <div class="stat-number">Free</div>
+                <div class="stat-label">Share & Bookmark</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number">100%</div>
-                <div class="stat-label">Free & Open Source</div>
+                <div class="stat-label">Open Source</div>
             </div>
         </div>
 
@@ -466,45 +784,45 @@
                 <div class="toc-section">
                     <h3>🚀 Fundamentals (Steps 1-4)</h3>
                     <ul>
-                        <li>Kubernetes Introduction & Basics</li>
-                        <li>Cluster Architecture & Components</li>
-                        <li>Production Best Practices</li>
-                        <li>Pods & Container Management</li>
+                        <li><a href="#step-1">Kubernetes Introduction & Basics</a></li>
+                        <li><a href="#step-2">Cluster Architecture & Components</a></li>
+                        <li><a href="#step-3">Production Best Practices</a></li>
+                        <li><a href="#step-4">Pods & Container Management</a></li>
                     </ul>
                 </div>
                 
                 <div class="toc-section">
                     <h3>🔧 Core Features (Steps 5-10)</h3>
                     <ul>
-                        <li>Deployments & ReplicaSets</li>
-                        <li>Services & Networking</li>
-                        <li>Interview Preparation Guide</li>
-                        <li>Practical Services Implementation</li>
-                        <li>Ingress Controllers & Load Balancing</li>
-                        <li>Complete Services & Ingress Guide</li>
+                        <li><a href="#step-5">Deployments & ReplicaSets</a></li>
+                        <li><a href="#step-6">Services & Networking</a></li>
+                        <li><a href="#step-7">Interview Preparation Guide</a></li>
+                        <li><a href="#step-8">Practical Services Implementation</a></li>
+                        <li><a href="#step-9">Ingress Controllers & Load Balancing</a></li>
+                        <li><a href="#step-10">Complete Services & Ingress Guide</a></li>
                     </ul>
                 </div>
                 
                 <div class="toc-section">
                     <h3>🔒 Advanced Topics (Steps 11-17)</h3>
                     <ul>
-                        <li>RBAC & Security Implementation</li>
-                        <li>Custom Resources & Operators</li>
-                        <li>ConfigMaps & Secrets Management</li>
-                        <li>Monitoring & Observability</li>
-                        <li>Real-world Challenges & Troubleshooting</li>
-                        <li>Security Best Practices</li>
-                        <li>Enterprise Implementation Strategies</li>
+                        <li><a href="#step-11">RBAC & Security Implementation</a></li>
+                        <li><a href="#step-12">Custom Resources & Operators</a></li>
+                        <li><a href="#step-13">ConfigMaps & Secrets Management</a></li>
+                        <li><a href="#step-14">Monitoring & Observability</a></li>
+                        <li><a href="#step-15">Real-world Challenges & Troubleshooting</a></li>
+                        <li><a href="#step-16">Security Best Practices</a></li>
+                        <li><a href="#step-17">Enterprise Implementation Strategies</a></li>
                     </ul>
                 </div>
                 
                 <div class="toc-section">
                     <h3>📚 Bonus Materials</h3>
                     <ul>
-                        <li>Complete Kubernetes Reference Guide</li>
-                        <li>Structured Learning Modules</li>
-                        <li>Hands-on Practical Exercises</li>
-                        <li>Real-world Use Cases</li>
+                        <li><a href="#complete-guide">Complete Kubernetes Reference Guide</a></li>
+                        <li><a href="#learning-modules">Structured Learning Modules</a></li>
+                        <li><a href="#step-8">Hands-on Practical Exercises</a></li>
+                        <li><a href="#step-15">Real-world Use Cases</a></li>
                     </ul>
                 </div>
             </div>
@@ -515,15 +833,15 @@
             
             <div class="guides-grid" id="guidesGrid">
                 <!-- Step 1 -->
-                <div class="guide-card" data-keywords="kubernetes intro introduction basics fundamentals step 1">
+                <div class="guide-card" id="step-1" data-keywords="kubernetes intro introduction basics fundamentals step 1">
                     <div class="step-number">1</div>
                     <div class="guide-icon">
                         <i class="fas fa-play-circle"></i>
                     </div>
                     <h3 class="guide-title">Kubernetes Introduction</h3>
-                    <p class="guide-description">Start your Kubernetes journey with fundamental concepts and basic understanding.</p>
+                    <p class="guide-description">Start your Kubernetes journey with fundamental concepts and basic understanding of container orchestration.</p>
                     <div class="guide-meta">
-                        <span>Beginner Level</span>
+                        <span class="guide-size">Beginner Level</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -534,15 +852,15 @@
                 </div>
 
                 <!-- Step 2 -->
-                <div class="guide-card" data-keywords="architecture components master worker nodes step 2">
+                <div class="guide-card" id="step-2" data-keywords="architecture components master worker nodes step 2">
                     <div class="step-number">2</div>
                     <div class="guide-icon">
                         <i class="fas fa-sitemap"></i>
                     </div>
                     <h3 class="guide-title">Kubernetes Architecture</h3>
-                    <p class="guide-description">Understand the internal architecture and components of Kubernetes clusters.</p>
+                    <p class="guide-description">Deep dive into the internal architecture, components, and how master and worker nodes communicate in a cluster.</p>
                     <div class="guide-meta">
-                        <span>Intermediate</span>
+                        <span class="guide-size">Intermediate</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -553,15 +871,15 @@
                 </div>
 
                 <!-- Step 3 -->
-                <div class="guide-card" data-keywords="production deployment best practices step 3">
+                <div class="guide-card" id="step-3" data-keywords="production deployment best practices step 3">
                     <div class="step-number">3</div>
                     <div class="guide-icon">
                         <i class="fas fa-rocket"></i>
                     </div>
                     <h3 class="guide-title">Production Guide</h3>
-                    <p class="guide-description">Best practices and considerations for running Kubernetes in production environments.</p>
+                    <p class="guide-description">Essential best practices, security considerations, and strategies for running Kubernetes in production environments.</p>
                     <div class="guide-meta">
-                        <span>Advanced</span>
+                        <span class="guide-size">Advanced</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -572,15 +890,15 @@
                 </div>
 
                 <!-- Step 4 -->
-                <div class="guide-card" data-keywords="pods deployment containers workloads step 4">
+                <div class="guide-card" id="step-4" data-keywords="pods deployment containers workloads step 4">
                     <div class="step-number">4</div>
                     <div class="guide-icon">
                         <i class="fas fa-cube"></i>
                     </div>
                     <h3 class="guide-title">Kubernetes Pods Guide</h3>
-                    <p class="guide-description">Deep dive into Kubernetes Pods - the smallest deployable units in Kubernetes.</p>
+                    <p class="guide-description">Master Pods - the smallest deployable units in Kubernetes, including multi-container pods and lifecycle management.</p>
                     <div class="guide-meta">
-                        <span>Intermediate</span>
+                        <span class="guide-size">Intermediate</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -591,15 +909,15 @@
                 </div>
 
                 <!-- Step 5 -->
-                <div class="guide-card" data-keywords="replicasets deployment scaling step 5">
+                <div class="guide-card" id="step-5" data-keywords="replicasets deployment scaling step 5">
                     <div class="step-number">5</div>
                     <div class="guide-icon">
                         <i class="fas fa-layer-group"></i>
                     </div>
                     <h3 class="guide-title">Deployment & ReplicaSets</h3>
-                    <p class="guide-description">Master application deployment and scaling with ReplicaSets and Deployments.</p>
+                    <p class="guide-description">Learn application deployment strategies, auto-scaling, rolling updates, and managing ReplicaSets effectively.</p>
                     <div class="guide-meta">
-                        <span>Intermediate</span>
+                        <span class="guide-size">Intermediate</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -610,15 +928,15 @@
                 </div>
 
                 <!-- Step 6 -->
-                <div class="guide-card" data-keywords="services networking service discovery load balancing step 6">
+                <div class="guide-card" id="step-6" data-keywords="services networking service discovery load balancing step 6">
                     <div class="step-number">6</div>
                     <div class="guide-icon">
                         <i class="fas fa-network-wired"></i>
                     </div>
                     <h3 class="guide-title">Kubernetes Services</h3>
-                    <p class="guide-description">Master Kubernetes Services for networking and service discovery in your cluster.</p>
+                    <p class="guide-description">Master different service types (ClusterIP, NodePort, LoadBalancer) for networking and service discovery.</p>
                     <div class="guide-meta">
-                        <span>Intermediate</span>
+                        <span class="guide-size">Intermediate</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -629,15 +947,15 @@
                 </div>
 
                 <!-- Step 7 -->
-                <div class="guide-card" data-keywords="interview questions preparation step 7">
+                <div class="guide-card" id="step-7" data-keywords="interview questions preparation step 7">
                     <div class="step-number">7</div>
                     <div class="guide-icon">
                         <i class="fas fa-question-circle"></i>
                     </div>
                     <h3 class="guide-title">Interview Guide</h3>
-                    <p class="guide-description">Prepare for Kubernetes interviews with common questions and practical scenarios.</p>
+                    <p class="guide-description">Comprehensive interview preparation with common questions, practical scenarios, and expert tips for K8s interviews.</p>
                     <div class="guide-meta">
-                        <span>All Levels</span>
+                        <span class="guide-size">All Levels</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -648,15 +966,15 @@
                 </div>
 
                 <!-- Step 8 -->
-                <div class="guide-card" data-keywords="services practical networking step 8">
+                <div class="guide-card" id="step-8" data-keywords="services practical networking step 8">
                     <div class="step-number">8</div>
                     <div class="guide-icon">
                         <i class="fas fa-tools"></i>
                     </div>
                     <h3 class="guide-title">Services Practical Guide</h3>
-                    <p class="guide-description">Hands-on practical guide for implementing and managing Kubernetes Services.</p>
+                    <p class="guide-description">Hands-on practical exercises for implementing, debugging, and optimizing Kubernetes Services in real scenarios.</p>
                     <div class="guide-meta">
-                        <span>Intermediate</span>
+                        <span class="guide-size">Intermediate</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -667,15 +985,15 @@
                 </div>
 
                 <!-- Step 9 -->
-                <div class="guide-card" data-keywords="ingress nginx load balancer routing traffic step 9">
+                <div class="guide-card" id="step-9" data-keywords="ingress nginx load balancer routing traffic step 9">
                     <div class="step-number">9</div>
                     <div class="guide-icon">
                         <i class="fas fa-route"></i>
                     </div>
                     <h3 class="guide-title">Kubernetes Ingress Guide</h3>
-                    <p class="guide-description">Learn how to manage external access to services using Kubernetes Ingress controllers.</p>
+                    <p class="guide-description">Configure Ingress controllers, SSL termination, path-based routing, and external access management.</p>
                     <div class="guide-meta">
-                        <span>Intermediate</span>
+                        <span class="guide-size">Intermediate</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -686,15 +1004,15 @@
                 </div>
 
                 <!-- Step 10 -->
-                <div class="guide-card" data-keywords="services complete ingress step 10">
+                <div class="guide-card" id="step-10" data-keywords="services complete ingress step 10">
                     <div class="step-number">10</div>
                     <div class="guide-icon">
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <h3 class="guide-title">Services & Ingress Complete</h3>
-                    <p class="guide-description">Complete guide covering all aspects of Services and Ingress implementation.</p>
+                    <p class="guide-description">Comprehensive guide combining Services and Ingress with advanced networking patterns and troubleshooting.</p>
                     <div class="guide-meta">
-                        <span>Intermediate</span>
+                        <span class="guide-size">Intermediate</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -705,15 +1023,15 @@
                 </div>
 
                 <!-- Step 11 -->
-                <div class="guide-card" data-keywords="rbac role based access control authentication step 11">
+                <div class="guide-card" id="step-11" data-keywords="rbac role based access control authentication step 11">
                     <div class="step-number">11</div>
                     <div class="guide-icon">
                         <i class="fas fa-user-lock"></i>
                     </div>
                     <h3 class="guide-title">RBAC Guide</h3>
-                    <p class="guide-description">Implement Role-Based Access Control for secure user and service authentication.</p>
+                    <p class="guide-description">Implement Role-Based Access Control with roles, service accounts, and fine-grained permission management.</p>
                     <div class="guide-meta">
-                        <span>Advanced</span>
+                        <span class="guide-size">Advanced</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -724,15 +1042,15 @@
                 </div>
 
                 <!-- Step 12 -->
-                <div class="guide-card" data-keywords="custom resources crd operators step 12">
+                <div class="guide-card" id="step-12" data-keywords="custom resources crd operators step 12">
                     <div class="step-number">12</div>
                     <div class="guide-icon">
                         <i class="fas fa-puzzle-piece"></i>
                     </div>
                     <h3 class="guide-title">Custom Resources Guide</h3>
-                    <p class="guide-description">Extend Kubernetes with Custom Resource Definitions and custom controllers.</p>
+                    <p class="guide-description">Extend Kubernetes API with Custom Resource Definitions (CRDs) and build custom controllers and operators.</p>
                     <div class="guide-meta">
-                        <span>Advanced</span>
+                        <span class="guide-size">Advanced</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -743,15 +1061,15 @@
                 </div>
 
                 <!-- Step 13 -->
-                <div class="guide-card" data-keywords="configmaps secrets configuration management step 13">
+                <div class="guide-card" id="step-13" data-keywords="configmaps secrets configuration management step 13">
                     <div class="step-number">13</div>
                     <div class="guide-icon">
                         <i class="fas fa-cog"></i>
                     </div>
                     <h3 class="guide-title">ConfigMaps & Secrets</h3>
-                    <p class="guide-description">Manage application configuration and sensitive data using ConfigMaps and Secrets.</p>
+                    <p class="guide-description">Manage application configuration, environment variables, and sensitive data using ConfigMaps and Secrets securely.</p>
                     <div class="guide-meta">
-                        <span>Intermediate</span>
+                        <span class="guide-size">Intermediate</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -762,15 +1080,15 @@
                 </div>
 
                 <!-- Step 14 -->
-                <div class="guide-card" data-keywords="monitoring prometheus grafana observability step 14">
+                <div class="guide-card" id="step-14" data-keywords="monitoring prometheus grafana observability step 14">
                     <div class="step-number">14</div>
                     <div class="guide-icon">
                         <i class="fas fa-chart-line"></i>
                     </div>
                     <h3 class="guide-title">Kubernetes Monitoring</h3>
-                    <p class="guide-description">Set up comprehensive monitoring and observability for your Kubernetes clusters.</p>
+                    <p class="guide-description">Set up comprehensive monitoring with Prometheus, Grafana, and alerting for cluster health and application metrics.</p>
                     <div class="guide-meta">
-                        <span>Advanced</span>
+                        <span class="guide-size">Advanced</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -781,15 +1099,15 @@
                 </div>
 
                 <!-- Step 15 -->
-                <div class="guide-card" data-keywords="real time challenges troubleshooting step 15">
+                <div class="guide-card" id="step-15" data-keywords="real time challenges troubleshooting step 15">
                     <div class="step-number">15</div>
                     <div class="guide-icon">
                         <i class="fas fa-bug"></i>
                     </div>
                     <h3 class="guide-title">Real-time Challenges</h3>
-                    <p class="guide-description">Face real-world Kubernetes challenges and learn troubleshooting techniques.</p>
+                    <p class="guide-description">Tackle real-world Kubernetes challenges, debugging techniques, and advanced troubleshooting methodologies.</p>
                     <div class="guide-meta">
-                        <span>Advanced</span>
+                        <span class="guide-size">Advanced</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -800,15 +1118,15 @@
                 </div>
 
                 <!-- Step 16 -->
-                <div class="guide-card" data-keywords="security rbac policies network security step 16">
+                <div class="guide-card" id="step-16" data-keywords="security rbac policies network security step 16">
                     <div class="step-number">16</div>
                     <div class="guide-icon">
                         <i class="fas fa-shield-alt"></i>
                     </div>
                     <h3 class="guide-title">Kubernetes Security Guide</h3>
-                    <p class="guide-description">Implement security best practices, RBAC, and network policies in Kubernetes.</p>
+                    <p class="guide-description">Implement comprehensive security with network policies, pod security, admission controllers, and vulnerability scanning.</p>
                     <div class="guide-meta">
-                        <span>Advanced</span>
+                        <span class="guide-size">Advanced</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -819,15 +1137,15 @@
                 </div>
 
                 <!-- Step 17 -->
-                <div class="guide-card" data-keywords="implementation advanced deployment step 17">
+                <div class="guide-card" id="step-17" data-keywords="implementation advanced deployment step 17">
                     <div class="step-number">17</div>
                     <div class="guide-icon">
                         <i class="fas fa-rocket"></i>
                     </div>
                     <h3 class="guide-title">Implementation Guide</h3>
-                    <p class="guide-description">Advanced implementation strategies and deployment patterns for enterprise use.</p>
+                    <p class="guide-description">Advanced implementation strategies, deployment patterns, GitOps workflows, and enterprise-grade Kubernetes setups.</p>
                     <div class="guide-meta">
-                        <span>Advanced</span>
+                        <span class="guide-size">Advanced</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -838,15 +1156,15 @@
                 </div>
 
                 <!-- Bonus: Complete Guide -->
-                <div class="guide-card" data-keywords="complete kubernetes guide comprehensive overview all topics">
+                <div class="guide-card" id="complete-guide" data-keywords="complete kubernetes guide comprehensive overview all topics">
                     <div class="step-number">📚</div>
                     <div class="guide-icon">
                         <i class="fas fa-book"></i>
                     </div>
                     <h3 class="guide-title">Complete Kubernetes Guide</h3>
-                    <p class="guide-description">Comprehensive guide covering all aspects of Kubernetes from basics to advanced topics.</p>
+                    <p class="guide-description">Comprehensive reference guide covering all aspects of Kubernetes from basics to advanced enterprise implementations.</p>
                     <div class="guide-meta">
-                        <span>All Levels</span>
+                        <span class="guide-size">All Levels</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -857,15 +1175,15 @@
                 </div>
 
                 <!-- Bonus: Learning Modules -->
-                <div class="guide-card" data-keywords="learning modules structured course curriculum">
+                <div class="guide-card" id="learning-modules" data-keywords="learning modules structured course curriculum">
                     <div class="step-number">🎓</div>
                     <div class="guide-icon">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
                     <h3 class="guide-title">Learning Modules</h3>
-                    <p class="guide-description">Structured learning modules with exercises and practical assignments.</p>
+                    <p class="guide-description">Structured learning curriculum with exercises, quizzes, and practical assignments for comprehensive skill development.</p>
                     <div class="guide-meta">
-                        <span>All Levels</span>
+                        <span class="guide-size">All Levels</span>
                         <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" target="_blank" class="github-link">
                             <i class="fab fa-github"></i> Star Repository
                         </a>
@@ -874,239 +1192,9 @@
                         Start Course <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
-                        Practice Services <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <!-- Step 9 -->
-                <div class="guide-card" data-keywords="ingress nginx load balancer routing traffic step 9">
-                    <div class="step-number">9</div>
-                    <div class="guide-icon">
-                        <i class="fas fa-route"></i>
-                    </div>
-                    <h3 class="guide-title">Kubernetes Ingress Guide</h3>
-                    <p class="guide-description">Learn how to manage external access to services using Kubernetes Ingress controllers.</p>
-                    <div class="guide-meta">
-                        <span>Intermediate</span>
-                        <span class="guide-size">29 KB</span>
-                    </div>
-                    <a href="notes/k8s_ingress_guide-9.html" class="guide-link">
-                        Configure Ingress <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <!-- Step 10 -->
-                <div class="guide-card" data-keywords="services complete ingress step 10">
-                    <div class="step-number">10</div>
-                    <div class="guide-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h3 class="guide-title">Services & Ingress Complete</h3>
-                    <p class="guide-description">Complete guide covering all aspects of Services and Ingress implementation.</p>
-                    <div class="guide-meta">
-                        <span>Intermediate</span>
-                        <span class="guide-size">44 KB</span>
-                    </div>
-                    <a href="notes/k8s_services_ingress_complete-10.html" class="guide-link">
-                        Complete Guide <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <!-- Step 11 -->
-                <div class="guide-card" data-keywords="rbac role based access control authentication step 11">
-                    <div class="step-number">11</div>
-                    <div class="guide-icon">
-                        <i class="fas fa-user-lock"></i>
-                    </div>
-                    <h3 class="guide-title">RBAC Guide</h3>
-                    <p class="guide-description">Implement Role-Based Access Control for secure user and service authentication.</p>
-                    <div class="guide-meta">
-                        <span>Advanced</span>
-                        <span class="guide-size">25 KB</span>
-                    </div>
-                    <a href="notes/k8s-rbac-guide-11.html" class="guide-link">
-                        Setup RBAC <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <!-- Step 12 -->
-                <div class="guide-card" data-keywords="custom resources crd operators step 12">
-                    <div class="step-number">12</div>
-                    <div class="guide-icon">
-                        <i class="fas fa-puzzle-piece"></i>
-                    </div>
-                    <h3 class="guide-title">Custom Resources Guide</h3>
-                    <p class="guide-description">Extend Kubernetes with Custom Resource Definitions and custom controllers.</p>
-                    <div class="guide-meta">
-                        <span>Advanced</span>
-                        <span class="guide-size">57 KB</span>
-                    </div>
-                    <a href="notes/kubernetes_custom_resources_guide-12.html" class="guide-link">
-                        Extend K8s <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <!-- Step 13 -->
-                <div class="guide-card" data-keywords="configmaps secrets configuration management step 13">
-                    <div class="step-number">13</div>
-                    <div class="guide-icon">
-                        <i class="fas fa-cog"></i>
-                    </div>
-                    <h3 class="guide-title">ConfigMaps & Secrets</h3>
-                    <p class="guide-description">Manage application configuration and sensitive data using ConfigMaps and Secrets.</p>
-                    <div class="guide-meta">
-                        <span>Intermediate</span>
-                        <span class="guide-size">66 KB</span>
-                    </div>
-                    <a href="notes/kubernetes_configmaps_secrets_guide-13.html" class="guide-link">
-                        Manage Config <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <!-- Step 14 -->
-                <div class="guide-card" data-keywords="monitoring prometheus grafana observability step 14">
-                    <div class="step-number">14</div>
-                    <div class="guide-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3 class="guide-title">Kubernetes Monitoring</h3>
-                    <p class="guide-description">Set up comprehensive monitoring and observability for your Kubernetes clusters.</p>
-                    <div class="guide-meta">
-                        <span>Advanced</span>
-                        <span class="guide-size">85 KB</span>
-                    </div>
-                    <a href="notes/kubernetes_monitoring_guide-14.html" class="guide-link">
-                        Setup Monitoring <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <!-- Step 15 -->
-                <div class="guide-card" data-keywords="real time challenges troubleshooting step 15">
-                    <div class="step-number">15</div>
-                    <div class="guide-icon">
-                        <i class="fas fa-bug"></i>
-                    </div>
-                    <h3 class="guide-title">Real-time Challenges</h3>
-                    <p class="guide-description">Face real-world Kubernetes challenges and learn troubleshooting techniques.</p>
-                    <div class="guide-meta">
-                        <span>Advanced</span>
-                        <span class="guide-size">62 KB</span>
-                    </div>
-                    <a href="notes/Real_time_kubernetes_challenges_guide-15.html" class="guide-link">
-                        Solve Challenges <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <!-- Step 16 -->
-                <div class="guide-card" data-keywords="security rbac policies network security step 16">
-                    <div class="step-number">16</div>
-                    <div class="guide-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3 class="guide-title">Kubernetes Security Guide</h3>
-                    <p class="guide-description">Implement security best practices, RBAC, and network policies in Kubernetes.</p>
-                    <div class="guide-meta">
-                        <span>Advanced</span>
-                        <span class="guide-size">79 KB</span>
-                    </div>
-                    <a href="notes/k8s_security_guide-16.html" class="guide-link">
-                        Secure Cluster <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <!-- Step 17 -->
-                <div class="guide-card" data-keywords="implementation advanced deployment step 17">
-                    <div class="step-number">17</div>
-                    <div class="guide-icon">
-                        <i class="fas fa-rocket"></i>
-                    </div>
-                    <h3 class="guide-title">Implementation Guide</h3>
-                    <p class="guide-description">Advanced implementation strategies and deployment patterns for enterprise use.</p>
-                    <div class="guide-meta">
-                        <span>Advanced</span>
-                        <span class="guide-size">49 KB</span>
-                    </div>
-                    <a href="notes/kubernetes-implementation-guide-17.html" class="guide-link">
-                        Implement K8s <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <!-- Bonus: Complete Guide -->
-                <div class="guide-card" data-keywords="complete kubernetes guide comprehensive overview all topics">
-                    <div class="step-number">📚</div>
-                    <div class="guide-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <h3 class="guide-title">Complete Kubernetes Guide</h3>
-                    <p class="guide-description">Comprehensive guide covering all aspects of Kubernetes from basics to advanced topics.</p>
-                    <div class="guide-meta">
-                        <span>All Levels</span>
-                        <span class="guide-size">109 KB</span>
-                    </div>
-                    <a href="notes/Complete-kubernetes-guide.html" class="guide-link">
-                        Complete Reference <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <!-- Bonus: Learning Modules -->
-                <div class="guide-card" data-keywords="learning modules structured course curriculum">
-                    <div class="step-number">🎓</div>
-                    <div class="guide-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <h3 class="guide-title">Learning Modules</h3>
-                    <p class="guide-description">Structured learning modules with exercises and practical assignments.</p>
-                    <div class="guide-meta">
-                        <span>All Levels</span>
-                        <span class="guide-size">23 KB</span>
-                    </div>
-                    <a href="notes/k8s_learning_modules-spl.html" class="guide-link">
-                        Start Course <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-            </div>">Production Guide</h3>
-                    <p class="guide-description">Best practices and considerations for running Kubernetes in production environments.</p>
-                    <div class="guide-meta">
-                        <span>Advanced</span>
-                        <span class="guide-size">51 KB</span>
-                    </div>
-                    <a href="notes/kubernetes_production_guide-3.html" class="guide-link">
-                        Go Production <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <div class="guide-card" data-keywords="rbac role based access control authentication">
-                    <div class="guide-icon">
-                        <i class="fas fa-user-lock"></i>
-                    </div>
-                    <h3 class="guide-title">RBAC Guide</h3>
-                    <p class="guide-description">Implement Role-Based Access Control for secure user and service authentication.</p>
-                    <div class="guide-meta">
-                        <span>Advanced</span>
-                        <span class="guide-size">25 KB</span>
-                    </div>
-                    <a href="notes/k8s-rbac-guide-11.html" class="guide-link">
-                        Setup RBAC <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-
-                <div class="guide-card" data-keywords="custom resources crd operators">
-                    <div class="guide-icon">
-                        <i class="fas fa-puzzle-piece"></i>
-                    </div>
-                    <h3 class="guide-title">Custom Resources Guide</h3>
-                    <p class="guide-description">Extend Kubernetes with Custom Resource Definitions and custom controllers.</p>
-                    <div class="guide-meta">
-                        <span>Advanced</span>
-                        <span class="guide-size">57 KB</span>
-                    </div>
-                    <a href="notes/kubernetes_custom_resources_guide-12.html" class="guide-link">
-                        Extend K8s <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
             </div>
 
-            <div class="no-results" id="noResults" style="display: none;">
+            <div class="no-results" id="noResults">
                 <i class="fas fa-search"></i>
                 <h3>No guides found</h3>
                 <p>Try adjusting your search terms or browse all available guides above.</p>
@@ -1117,45 +1205,79 @@
             <p>&copy; 2025 Kubernetes Zero to Hero Learning Hub</p>
             <p>Created with ❤️ for the Kubernetes community</p>
             <div class="social-links">
-                <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
-                <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
-                <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="https://github.com/majameel/Kubernetes-Zero-to-Hero" title="GitHub"><i class="fab fa-github"></i></a>
+                <a href="https://www.youtube.com/@AbhishekVeeramalla" title="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://www.linkedin.com/in/mohd-abdul-jameel-305ax25/" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
             </div>
         </footer>
     </div>
 
+    <!-- Floating Action Buttons -->
+    <div class="floating-actions">
+        <button class="floating-btn like-btn" id="likeBtn" title="Like this guide">
+            <i class="fas fa-heart"></i>
+            <span class="like-count" id="likeCount">42</span>
+        </button>
+        <a href="https://majameel.github.io" target="_blank" class="floating-btn about-btn" title="About Author">
+            <i class="fas fa-user"></i>
+        </a>
+    </div>
+
     <script>
-        // Search functionality - REMOVED
+        // Enhanced search functionality
+        const searchInput = document.getElementById('searchInput');
         const guidesGrid = document.getElementById('guidesGrid');
         const guideCards = document.querySelectorAll('.guide-card');
+        const noResults = document.getElementById('noResults');
 
-        // Add smooth scrolling and animations
-        document.addEventListener('DOMContentLoaded', function() {
-            // Animate cards on scroll
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            let visibleCards = 0;
 
-            const observer = new IntersectionObserver(function(entries) {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }
-                });
-            }, observerOptions);
+            guideCards.forEach(card => {
+                const keywords = card.getAttribute('data-keywords').toLowerCase();
+                const title = card.querySelector('.guide-title').textContent.toLowerCase();
+                const description = card.querySelector('.guide-description').textContent.toLowerCase();
 
-            // Initially hide cards for animation
-            guideCards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
-                observer.observe(card);
+                if (searchTerm === '' || 
+                    keywords.includes(searchTerm) || 
+                    title.includes(searchTerm) || 
+                    description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    visibleCards++;
+                } else {
+                    card.style.display = 'none';
+                }
             });
+
+            // Show/hide no results message
+            if (visibleCards === 0 && searchTerm !== '') {
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+            }
         });
 
-        // Add keyboard navigation
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all guide cards
+        guideCards.forEach(card => {
+            observer.observe(card);
+        });
+
+        // Keyboard navigation
         searchInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 const firstVisibleCard = document.querySelector('.guide-card[style*="display: block"], .guide-card:not([style*="display: none"])');
@@ -1164,6 +1286,70 @@
                     if (link) link.click();
                 }
             }
+            if (e.key === 'Escape') {
+                this.value = '';
+                this.dispatchEvent(new Event('input'));
+            }
+        });
+
+        // Add loading animation to guide links
+        document.querySelectorAll('.guide-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (!this.href.startsWith('#')) {
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                }
+            });
+        });
+
+        // Like button functionality
+        let likeCount = 42; // Starting with 42 likes
+        const likeBtn = document.getElementById('likeBtn');
+        const likeCountSpan = document.getElementById('likeCount');
+        let isLiked = false;
+
+        likeBtn.addEventListener('click', function() {
+            if (!isLiked) {
+                likeCount++;
+                isLiked = true;
+                this.classList.add('liked');
+                
+                // Update count display
+                likeCountSpan.textContent = likeCount;
+                
+                // Show a little success message
+                const originalTitle = this.title;
+                this.title = 'Thanks for the love! ❤️';
+                
+                setTimeout(() => {
+                    this.title = originalTitle;
+                    this.classList.remove('liked');
+                }, 2000);
+            }
+        });
+
+        // Add pulse animation to like button periodically
+        setInterval(() => {
+            if (!isLiked) {
+                likeBtn.style.animation = 'heartBeat 1s ease';
+                setTimeout(() => {
+                    likeBtn.style.animation = '';
+                }, 1000);
+            }
+        }, 15000); // Every 15 seconds
+
+        // Smooth scroll with offset for TOC links
+        document.querySelectorAll('a[href^="#step-"], a[href^="#complete-"], a[href^="#learning-"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const targetPosition = target.offsetTop - 100; // 100px offset for better visibility
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
         });
     </script>
 </body>
